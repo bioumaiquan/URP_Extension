@@ -57,15 +57,13 @@ half4 CommonLitFrag(Varyings input) : SV_TARGET
     UNITY_SETUP_INSTANCE_ID(input);
 	
     Surface surface = (Surface)0;
-    surface.albedo = 0.8;
-    surface.normal = input.normalWS;
+    surface.albedo = 0.5;
+    surface.normal = SafeNormalize(input.normalWS);
     surface.metallic = 0;
-    surface.smoothness = 0.5;
+    surface.smoothness = 0.6;
 
     BRDF brdf = GetBRDF(surface);
-    GI gi = (GI)0;
-    gi.diffuse = surface.albedo;
-    gi.specular = 0;
+    GI gi = GetGI(0, surface, brdf);
 
     half3 color = LightingPBR(brdf, surface, gi);
 

@@ -53,6 +53,15 @@ half3 SampleLightmap(float2 lightmapUV, half3 normalWS)
 }
 
 
+half3 SampleEnvironment (Surface surfaceWS, BRDF brdf) 
+{
+	half3 uvw = reflect(-surfaceWS.viewDirection, surfaceWS.normal);
+	half lod = PerceptualRoughnessToMipmapLevel(brdf.perceptualRoughness);
+	half4 environment = SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, uvw, lod);
+	return DecodeHDREnvironment(environment, unity_SpecCube0_HDR);
+}
+
+
 
 struct GI 
 {
@@ -60,13 +69,12 @@ struct GI
 	half3 specular;
 };
 
-GI GetGI (Surface surfaceWS, BRDF brdf) 
+GI GetGI (half2 lightMapUV, Surface surfaceWS, BRDF brdf) 
 {
 	GI gi;
-    gi.diffuse = SampleSH(surfaceWS);
-    gi.specular = 0;
-	// gi.diffuse = SampleLightMap(lightMapUV) + SampleSH(surfaceWS);
-	// gi.specular = SampleEnvironment(surfaceWS, brdf);
+    
+	gi.diffuse = SampleLightmap(lightMapUV, surfaceWS.normal) + SampleSH(surfaceWS.normal);
+	gi.specular = SampleEnvironment(surfaceWS, brdf);
 
 	// gi.shadowMask.always = false;
 	// gi.shadowMask.distance = false;

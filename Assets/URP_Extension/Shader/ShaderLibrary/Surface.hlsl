@@ -6,13 +6,21 @@ struct Surface
     half3 albedo;
     half3 specular;
     half3 viewDirection;
+    half3 position;
     half  metallic;
     half  smoothness;
     half3 normal;
-    half3 emission;
     half  occlusion;
     half  alpha;
     half fresnelStrength;
+    half3 SSSColor;
+    half3 SSSNormal;
+};
+
+struct VertexData
+{
+    half3 lighting;
+    half3 color;
 };
 
 #endif

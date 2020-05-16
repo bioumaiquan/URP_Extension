@@ -106,7 +106,7 @@ half4 CommonLitFrag(Varyings input) : SV_TARGET
 
     #ifdef _SSS
         surface.SSSNormal = lerp(originalNormal, surface.normal, _SSSBumpScale);
-        surface.SSSColor = _SSSColor.rgb;
+        surface.SSSColor = sampleSSSMap(input.uv.xy);
     #endif
 
     VertexData vertexData = (VertexData)0;

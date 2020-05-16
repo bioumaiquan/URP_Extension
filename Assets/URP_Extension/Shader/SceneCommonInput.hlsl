@@ -19,6 +19,7 @@ CBUFFER_END
 TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
 TEXTURE2D(_MAESMap);
 TEXTURE2D(_BumpMap);
+TEXTURE2D(_SSSMap);
 
 half4 sampleBaseMap(float2 uv)
 {
@@ -45,6 +46,12 @@ half3 sampleBumpMap(float2 uv)
 half4 sampleFresnel(float2 uv)
 {
     return _FresnelStrength;
+}
+
+half3 sampleSSSMap(float2 uv)
+{
+    half3 map = SAMPLE_TEXTURE2D(_SSSMap, sampler_BaseMap, uv).r * _SSSColor.rgb;
+    return map;
 }
 
 #endif //BIOUM_COMMON_INPUT_INCLUDE

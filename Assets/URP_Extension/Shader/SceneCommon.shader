@@ -18,12 +18,12 @@
         [Space(10)]
         [Toggle(_SSS)] _sss ("SSS", float) = 0
         _SSSColor ("SSS Color", Color) = (0.7, 0.07, 0.01, 1)
+        _SSSMap ("SSS Tex", 2D) = "White" {}
         _SSSBumpScale ("SSS Normal Scale", Range(0,1)) = 0.5
     }
     SubShader
     {
         Tags{"RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "IgnoreProjector" = "True"}
-        LOD 300
         Pass
         {
             Name "ForwardLit"
@@ -37,6 +37,7 @@
             #pragma target 2.0
 
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
+            #pragma multi_compile _ _SHADOWS_SOFT
             #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile_instancing

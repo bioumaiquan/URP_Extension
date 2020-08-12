@@ -52,8 +52,11 @@ half3 SGDiffuseLighting(half3 normalWS, half3 lightDirWS, half3 SSSColor)
     half3 diffuse = half3(DotCosineLobe(redKernel, normalWS), DotCosineLobe(greenKernel, normalWS), DotCosineLobe(blueKernel, normalWS));
 
     //filmic tonemapping
-    half3 x = max(0, (diffuse - 0.004));
-    diffuse = (x * (6.2 * x + 0.5)) / (x * (6.2 * x + 1.7) + 0.06);
+    if(_SSSToneMapping)
+    {
+        half3 x = max(0, (diffuse - 0.004));
+        diffuse = (x * (6.2 * x + 0.5)) / (x * (6.2 * x + 1.7) + 0.06);
+    }
     return diffuse;
 }
 
@@ -65,21 +68,21 @@ half3 Lambert(half3 lightColor, half3 lightDir, half3 normal)
 
 half3 IncomingLight(Surface surface, half3 lightColor, half3 lightDir)
 {
-    #if defined(_SSS)
-        half3 SG = SGDiffuseLighting(surface.SSSNormal, lightDir, surface.SSSColor);
-        return lightColor * SG;
-    #else
-        return Lambert(lightColor, lightDir, surface.normal);
-    #endif
+#if defined(_SSS)
+    half3 SG = SGDiffuseLighting(surface.SSSNormal, lightDir, surface.SSSColor);
+    return lightColor * SG;
+#else
+    return Lambert(lightColor, lightDir, surface.normal);
+#endif
 }
 
 half SpecularStrength(Surface surface, BRDF brdf, Light light)
 {
-	half3 h = SafeNormalize(light.direction + surface.viewDirection);
-	half nh2 = Square(saturate(dot(surface.normal, h)));
-	half lh2 = Square(saturate(dot(light.direction, h)));
-	half d2 = Square(nh2 * brdf.roughness2MinusOne + 1.00001);
-	return brdf.roughness2 / (d2 * max(0.1, lh2) * brdf.normalizationTerm);
+    half3 h = SafeNormalize(light.direction + surface.viewDirection);
+    half nh2 = Square(saturate(dot(surface.normal, h)));
+    half lh2 = Square(saturate(dot(light.direction, h)));
+    half d2 = Square(nh2 * brdf.roughness2MinusOne + 1.00001);
+    return brdf.roughness2 / (d2 * max(0.1, lh2) * brdf.normalizationTerm);
 }
 
 half3 DirectBRDF(Surface surface, BRDF brdf, Light light)
@@ -87,7 +90,6 @@ half3 DirectBRDF(Surface surface, BRDF brdf, Light light)
     half3 specular = SpecularStrength(surface, brdf, light) * brdf.specular + brdf.diffuse;
     half3 radiance = IncomingLight(surface, light.color, light.direction) * light.shadowAttenuation * light.distanceAttenuation;
 
-//return light.shadowAttenuation;
     return specular * radiance;
 }
 
@@ -104,6 +106,9 @@ half3 IndirectBRDF(Surface surface, BRDF brdf, half3 diffuse, half3 specular)
 }
 
 
+//clear coat
+
+
 
 
 
@@ -117,18 +122,17 @@ half3 LightingPBR(BRDF brdf, Surface surface, VertexData vertexData, GI gi)
     Light mainLight = GetMainLight(shadowCoord);
     color += DirectBRDF(surface, brdf, mainLight);
 
-    #ifdef _ADDITIONAL_LIGHTS
-        uint pixelLightCount = GetAdditionalLightsCount();
-        for (uint lightIndex = 0u; lightIndex < pixelLightCount; ++lightIndex)
-        {
-            Light light = GetAdditionalLight(lightIndex, surface.position);
-            color += DirectBRDF(surface, brdf, light);
-        }
-    #elif _ADDITIONAL_LIGHTS_VERTEX
-        color += vertexData.lighting * brdf.diffuse;
-    #endif
+#ifdef _ADDITIONAL_LIGHTS
+    uint pixelLightCount = GetAdditionalLightsCount();
+    for (uint lightIndex = 0u; lightIndex < pixelLightCount; ++lightIndex)
+    {
+        Light light = GetAdditionalLight(lightIndex, surface.position);
+        color += DirectBRDF(surface, brdf, light);
+    }
+#elif _ADDITIONAL_LIGHTS_VERTEX
+    color += vertexData.lighting * brdf.diffuse;
+#endif
 
-//return DirectBRDF(surface, brdf, mainLight);
     return color;
 }
 

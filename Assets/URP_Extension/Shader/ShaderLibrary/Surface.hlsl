@@ -12,6 +12,10 @@ struct Surface
     half3 normal;
     half  occlusion;
     half  alpha;
+    half  specularStrength;
+    half  specularTint;
+    half  clearCoat;
+    half3  clearCoatNormal;
     half fresnelStrength;
     half3 SSSColor;
     half3 SSSNormal;

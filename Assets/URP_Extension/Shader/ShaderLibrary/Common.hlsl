@@ -1,27 +1,44 @@
 #ifndef BIOUM_COMMON_INCLUDE
 #define BIOUM_COMMON_INCLUDE
 
-#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
-#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Packing.hlsl"
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
 
-half Square(half v)
+real Square(real v)
 {
 	return v * v;
 }
-half2 Square(half2 v)
+real2 Square(real2 v)
 {
 	return v * v;
 }
-half3 Square(half3 v)
+real3 Square(real3 v)
 {
 	return v * v;
 }
 
-float DistanceSquared(float3 pA, float3 pB) 
+real DistanceSquared(float3 pA, float3 pB) 
 {
 	return dot(pA - pB, pA - pB);
 }
+
+real positiveSin(real x)
+{
+    x = fmod(x, TWO_PI);
+    return sin(x) * 0.5 + 0.5;
+}
+
+TEXTURE2D_FLOAT(_CameraDepthTexture);
+SAMPLER(sampler_CameraDepthTexture);
+real SoftEdge(real near, real far, real4 positionNDC)
+{
+    positionNDC.xyz /= positionNDC.w;
+    float depth = SAMPLE_TEXTURE2D(_CameraDepthTexture, sampler_CameraDepthTexture, positionNDC.xy).r;
+    real sceneZ = LinearEyeDepth(depth, _ZBufferParams);
+    real thisZ = LinearEyeDepth(positionNDC.z, _ZBufferParams);
+    real fade = saturate (far * ((sceneZ - near) - thisZ));
+    return fade;
+}
+
 
 #endif

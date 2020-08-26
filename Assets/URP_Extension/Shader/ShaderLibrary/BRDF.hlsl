@@ -29,13 +29,13 @@ BRDF GetBRDF(Surface surface)
     BRDF brdf;
     brdf.diffuse = surface.albedo * oneMinusReflectivity;
 
-    half lum = Luminance(surface.albedo);
-    half3 tint = lum > 0 ? surface.albedo/lum : 1;
+    half lum = max(0.01, Luminance(surface.albedo));
+    half3 tint = surface.albedo/lum;
     half3 minReflectivity = surface.specularStrength * 0.08 * lerp(1, tint, surface.specularTint);
     brdf.specular = lerp(minReflectivity, surface.albedo, surface.metallic);
 
     brdf.perceptualRoughness = PerceptualSmoothnessToPerceptualRoughness(surface.smoothness);  // 1 - smoothness
-    brdf.roughness = PerceptualRoughnessToRoughness(max(0.05, brdf.perceptualRoughness));  // perceptualRoughness^2
+    brdf.roughness = PerceptualRoughnessToRoughness(max(0.02, brdf.perceptualRoughness));  // perceptualRoughness^2
     brdf.roughness2 = Square(brdf.roughness);
 
     brdf.fresnel = saturate(surface.smoothness + 1 - oneMinusReflectivity);

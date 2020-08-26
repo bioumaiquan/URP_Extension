@@ -52,11 +52,9 @@ half3 SGDiffuseLighting(half3 normalWS, half3 lightDirWS, half3 SSSColor)
     half3 diffuse = half3(DotCosineLobe(redKernel, normalWS), DotCosineLobe(greenKernel, normalWS), DotCosineLobe(blueKernel, normalWS));
 
     //filmic tonemapping
-    if(_SSSToneMapping)
-    {
-        half3 x = max(0, (diffuse - 0.004));
-        diffuse = (x * (6.2 * x + 0.5)) / (x * (6.2 * x + 1.7) + 0.06);
-    }
+    half3 x = max(0, (diffuse - 0.004));
+    diffuse = (x * (6.2 * x + 0.5)) / (x * (6.2 * x + 1.7) + 0.06);
+    
     return diffuse;
 }
 
@@ -82,7 +80,9 @@ half SpecularStrength(Surface surface, BRDF brdf, Light light)
     half nh2 = Square(saturate(dot(surface.normal, h)));
     half lh2 = Square(saturate(dot(light.direction, h)));
     half d2 = Square(nh2 * brdf.roughness2MinusOne + 1.00001);
-    return brdf.roughness2 / (d2 * max(0.1, lh2) * brdf.normalizationTerm);
+    half spec = brdf.roughness2 / (d2 * max(0.1, lh2) * brdf.normalizationTerm);
+    spec = min(100, spec);
+    return spec;
 }
 
 half3 DirectBRDF(Surface surface, BRDF brdf, Light light)
@@ -132,6 +132,8 @@ half3 LightingPBR(BRDF brdf, Surface surface, VertexData vertexData, GI gi)
 #elif _ADDITIONAL_LIGHTS_VERTEX
     color += vertexData.lighting * brdf.diffuse;
 #endif
+
+    color = mainLight.shadowAttenuation;
 
     return color;
 }

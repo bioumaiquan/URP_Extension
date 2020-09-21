@@ -5,25 +5,28 @@
 #include "../Shader/ShaderLibrary/Surface.hlsl"
 
 CBUFFER_START(UnityPerMaterial)
-float4 _BaseMap_ST;
+half4 _BaseMap_ST;
 half4 _BaseColor;
 half4 _SSSColor;
-half _BumpScale;
-half _SSSBumpScale;
-bool _SSSToneMapping;
-half _Smoothness;
+half4 _EmiColor;
+half4 _RimColor;
+
+half _NormalScale;
+
+half _SmoothnessMin;
+half _SmoothnessMax;
 half _Metallic;
-half _OcclusionStrength;
+half _AOStrength;
+
 half _FresnelStrength;
-half _SpecularStrength;
 half _SpecularTint;
-half _ClearCoat;
+half _Transparent;
+half _Cutoff;
 CBUFFER_END
 
 TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
 TEXTURE2D(_MAESMap); SAMPLER(sampler_MAESMap);
-TEXTURE2D(_BumpMap); SAMPLER(sampler_BumpMap);
-TEXTURE2D(_SSSMap); SAMPLER(sampler_SSSMap);
+TEXTURE2D(_NormalMap); SAMPLER(sampler_NormalMap);
 
 half4 sampleBaseMap(float2 uv)
 {
@@ -35,27 +38,46 @@ half4 sampleMAESMap(float2 uv)
 {
     half4 map = SAMPLE_TEXTURE2D(_MAESMap, sampler_MAESMap, uv);
     map.r *= _Metallic;
-    map.g = LerpWhiteTo(map.g, _OcclusionStrength);
-    map.a *= _Smoothness;
+    map.g = LerpWhiteTo(map.g, _AOStrength);
+    map.a = lerp(_SmoothnessMin, _SmoothnessMax, map.a);
 
     return map;
 }
 
-half3 sampleBumpMap(float2 uv)
+half3 sampleNormalMap(float2 uv)
 {
-    half4 map = SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uv);
-    return UnpackNormalScale(map, _BumpScale);
+    half4 map = SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, uv);
+    return UnpackNormalScale(map, _NormalScale);
 }
 
-half4 sampleFresnel(float2 uv)
+half GetFresnel()
 {
     return _FresnelStrength;
 }
 
-half3 sampleSSSMap(float2 uv)
+half GetTransparent()
 {
-    half3 map = SAMPLE_TEXTURE2D(_SSSMap, sampler_SSSMap, uv).r * _SSSColor.rgb;
-    return map;
+    return _Transparent;
+}
+
+half GetCutoff()
+{
+    return _Cutoff;
+}
+
+half3 GetSSSColor()
+{
+    return _SSSColor.rgb;
+}
+
+half4 GetRimColor()
+{
+    return _RimColor;  //alpha = power
+}
+
+half GetAlpha()
+{
+    return _Transparent;
 }
 
 #endif //BIOUM_COMMON_INPUT_INCLUDE

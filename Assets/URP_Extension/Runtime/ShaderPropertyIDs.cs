@@ -17,6 +17,8 @@ namespace BioumRP
             internal static readonly int SkyColors1 = Shader.PropertyToID("_SkyColors1");
             internal static readonly int SkyColors2 = Shader.PropertyToID("_SkyColors2");
             internal static readonly int SkyColors3 = Shader.PropertyToID("_SkyColors3");
+            internal static readonly int reflectionTexture = Shader.PropertyToID("_ReflectionTex");
+            internal static readonly int reflectionTransparent = Shader.PropertyToID("_ReflectionTransparent");
         }
 
         public class Effect

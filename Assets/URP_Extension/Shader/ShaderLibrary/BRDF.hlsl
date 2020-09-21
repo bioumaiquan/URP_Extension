@@ -9,7 +9,6 @@ struct BRDF
     half roughness;
     half roughness2;
     half fresnel;
-    half clearCoat;
 
     half normalizationTerm;   // roughness * 4.0 + 2.0
     half roughness2MinusOne;  // roughness^2 - 1.0
@@ -22,28 +21,32 @@ half OneMinusReflectivity(half metallic)
     return range - metallic * range;
 }
 
-BRDF GetBRDF(Surface surface)
+BRDF GetBRDF(Surface surface, inout half alpha)
 {
     half oneMinusReflectivity = OneMinusReflectivity(surface.metallic);
+    half reflectivity = 1 - oneMinusReflectivity;
 
     BRDF brdf;
-    brdf.diffuse = surface.albedo * oneMinusReflectivity;
+    brdf.diffuse = surface.albedo.rgb * oneMinusReflectivity;
 
-    half lum = max(0.01, Luminance(surface.albedo));
-    half3 tint = surface.albedo/lum;
-    half3 minReflectivity = surface.specularStrength * 0.08 * lerp(1, tint, surface.specularTint);
-    brdf.specular = lerp(minReflectivity, surface.albedo, surface.metallic);
+    half lum = max(0.001, Luminance(surface.albedo));
+    half3 tint = surface.albedo.rgb/lum;
+    half3 minReflectivity = MIN_REFLECTIVITY * LerpWhiteTo(tint, surface.specularTint);
+    brdf.specular = lerp(minReflectivity, surface.albedo.rgb, surface.metallic);
 
     brdf.perceptualRoughness = PerceptualSmoothnessToPerceptualRoughness(surface.smoothness);  // 1 - smoothness
     brdf.roughness = PerceptualRoughnessToRoughness(max(0.02, brdf.perceptualRoughness));  // perceptualRoughness^2
     brdf.roughness2 = Square(brdf.roughness);
 
-    brdf.fresnel = saturate(surface.smoothness + 1 - oneMinusReflectivity);
+    brdf.fresnel = saturate(surface.smoothness + reflectivity);
 
     brdf.normalizationTerm = brdf.roughness * 4.0h + 2.0h;
     brdf.roughness2MinusOne = brdf.roughness2 - 1.0h;
 
-    brdf.clearCoat = surface.clearCoat * 0.25;
+    #if _ALPHAPREMULTIPLY_ON
+        brdf.diffuse *= alpha;
+        alpha = alpha * oneMinusReflectivity + reflectivity;
+    #endif
 
     return brdf;
 }

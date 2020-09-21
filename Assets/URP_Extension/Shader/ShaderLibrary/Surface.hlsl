@@ -3,26 +3,26 @@
 
 struct Surface
 {
-    half3 albedo;
-    half3 specular;
-    half3 viewDirection;
-    half3 position;
+    half4 albedo;
+
     half  metallic;
+    half3 viewDirection;
+
     half  smoothness;
-    half3 normal;
+    half3 position;
+
     half  occlusion;
-    half  alpha;
-    half  specularStrength;
-    half  specularTint;
-    half  clearCoat;
-    half3  clearCoatNormal;
+    half3 normal;
+
     half fresnelStrength;
     half3 SSSColor;
-    half3 SSSNormal;
+
+    half  specularTint;
 };
 
 struct VertexData
 {
+    half4 shadowCoord;
     half3 lighting;
     half3 color;
 };

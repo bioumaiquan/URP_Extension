@@ -10,13 +10,17 @@ struct Attributes
 {
     float4 positionOS   : POSITION;
     float3 normalOS     : NORMAL;
+    #if _ALPHATEST_ON
     float2 texcoord     : TEXCOORD0;
+    #endif
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
 struct Varyings
 {
+    #if _ALPHATEST_ON
     float2 uv           : TEXCOORD0;
+    #endif
     float4 positionCS   : SV_POSITION;
 };
 
@@ -41,13 +45,20 @@ Varyings ShadowPassVertex(Attributes input)
     Varyings output;
     UNITY_SETUP_INSTANCE_ID(input);
 
+    #if _ALPHATEST_ON
     output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
+    #endif
+
     output.positionCS = GetShadowPositionHClip(input);
     return output;
 }
 
 half4 ShadowPassFragment(Varyings input) : SV_TARGET
 {
+    #if _ALPHATEST_ON
+        half alpha = sampleBaseMap(input.uv).a;
+        clip(alpha - _Cutoff);
+    #endif
     //Alpha(SampleAlbedoAlpha(input.uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)).a, _BaseColor, _Cutoff);
     return 0;
 }

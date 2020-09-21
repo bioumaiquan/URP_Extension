@@ -1,4 +1,4 @@
-﻿Shader "Bioum/Scene/Water"
+﻿Shader "Bioum/Scene/ToneWater"
 {
     Properties
     {
@@ -39,6 +39,43 @@
         }
         Name "ForwardLit"
         Tags{"LightMode" = "UniversalForward"}
+        Lod 300
+
+        Pass
+        {
+            Blend One OneMinusSrcAlpha
+            ZWrite Off
+
+            HLSLPROGRAM
+            #pragma prefer_hlslcc gles
+            #pragma exclude_renderers d3d11_9x
+            #pragma target 3.5
+
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
+            #pragma multi_compile _ _REFLECTION_TEXTURE
+            #pragma multi_compile_fog
+            
+            #define _ENABLE_DEPTH_TEXTURE 1
+            
+            #pragma vertex WaterLitVert
+            #pragma fragment WaterLitFrag
+
+            #include "SceneWaterPass.hlsl"
+
+            ENDHLSL
+        }
+    }
+    SubShader
+    {
+        Tags
+        {
+            "RenderType" = "Transparent" 
+            "Queue" = "Transparent"
+            "RenderPipeline" = "UniversalPipeline" 
+            "IgnoreProjector" = "True"
+        }
+        Name "ForwardLit"
+        Tags{"LightMode" = "UniversalForward"}
         Lod 200
 
         Pass
@@ -51,7 +88,11 @@
             #pragma exclude_renderers d3d11_9x
             #pragma target 3.5
 
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
+            #pragma multi_compile_fog
+            
             #define _ENABLE_DEPTH_TEXTURE 1
+            #define _REFLECTION_TEXTURE 0
             
             #pragma vertex WaterLitVert
             #pragma fragment WaterLitFrag
@@ -86,6 +127,8 @@
             #pragma target 3.5
 
             #define _ENABLE_DEPTH_TEXTURE 0
+            #define _REFLECTION_TEXTURE 0
+            #pragma multi_compile_fog
             
             #pragma vertex WaterLitVert
             #pragma fragment WaterLitFrag

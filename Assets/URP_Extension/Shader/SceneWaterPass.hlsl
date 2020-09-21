@@ -7,6 +7,7 @@
 #include "../Shader/ShaderLibrary/Fog.hlsl"
 
 sampler2D _NormalTex; 
+sampler2D _ReflectionTex; 
 CBUFFER_START(UnityPerMaterial)
 half4 _WaveSpeed;
 half4 _NormalTex_ST;
@@ -25,6 +26,7 @@ half _FoamDensity;
 half _FoamSpeed;
 half _FoamEdgeRange;
 half4 _FoamColor;
+half _ReflectionTransparent;
 CBUFFER_END
 
 struct Attributes
@@ -40,31 +42,36 @@ struct Varyings
 {
     float4 positionCS: SV_POSITION;
     real4 uv: TEXCOORD0;
-    real3 positionWS: TEXCOORD1;
+    real4 positionWSAndFog: TEXCOORD1;
     real4 tangentWS: TEXCOORD2;
     real4 bitangentWS: TEXCOORD3;
     real4 normalWS: TEXCOORD4;
-    real4 positionSS: TEXCOORD5;
+    real4 positionNDC: TEXCOORD5;
     half4 vColor : COLOR; 
+#if _MAIN_LIGHT_SHADOWS
+    real4 shadowCoord : TEXCOORD6;
+#endif
 };
 
 Varyings WaterLitVert(Attributes input)
 {
     Varyings output = (Varyings)0;
-    
-    output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
-    output.positionCS = TransformWorldToHClip(output.positionWS);
+
+
+    VertexPositionInputs vertexPositions = GetVertexPositionInputs(input.positionOS);
+    output.positionCS = vertexPositions.positionCS;
+    output.positionWSAndFog.xyz = vertexPositions.positionWS;
+    output.positionNDC = vertexPositions.positionNDC;
+    output.positionNDC.z = -vertexPositions.positionVS.z;
     
     half4 uv = input.texcoord.xyxy * _NormalTex_ST.xyxy * half4(1,1,1.3,1.28);
     output.uv = uv + _Time.x * _WaveSpeed; 
 
-    half3 viewDirWS = _WorldSpaceCameraPos.xyz - output.positionWS;
+    half3 viewDirWS = _WorldSpaceCameraPos.xyz - vertexPositions.positionWS;
     VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
     output.tangentWS = half4(normalInput.tangentWS, viewDirWS.x);
     output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.y);
     output.normalWS = half4(normalInput.normalWS, viewDirWS.z);
-
-    output.positionSS = ComputeScreenPos(output.positionCS);
 
 #if !_ENABLE_DEPTH_TEXTURE
     half2 range = rcp(half2(_WaterColorRange, _SoftEdgeRange) * 0.1);
@@ -72,6 +79,12 @@ Varyings WaterLitVert(Attributes input)
     output.vColor = lerp(_WaterColorNear, _WaterColorFar, range.x);
     output.vColor.a = range.y;
 #endif
+
+#if _MAIN_LIGHT_SHADOWS
+    output.shadowCoord = TransformWorldToShadowCoord(vertexPositions.positionWS);
+#endif
+
+    output.positionWSAndFog.w = ComputeFogFactor(output.positionCS.z);
 
     return output;
 }
@@ -97,22 +110,23 @@ half4 WaterLitFrag(Varyings input): SV_TARGET
 
     //base color and alpha
     half3 color = 1; half alpha = 1; half edge = 1;
-    #if _ENABLE_DEPTH_TEXTURE
-        half3 far = rcp(half3(_SoftEdgeRange, _WaterColorRange, _FoamEdgeRange));
-        half3 positionNDC = input.positionSS.xyz / input.positionSS.w;
-        float depth = SAMPLE_TEXTURE2D(_CameraDepthTexture, sampler_CameraDepthTexture, positionNDC.xy).r;
-        half sceneZ = LinearEyeDepth(depth, _ZBufferParams);
-        half thisZ = LinearEyeDepth(positionNDC.z, _ZBufferParams);
-        edge = sceneZ - thisZ;
-        half3 fade = saturate (far * edge);
-        edge = fade.z; //use for foam
+    half3 positionSS = input.positionNDC.xyz / input.positionNDC.w;
+#if _ENABLE_DEPTH_TEXTURE
+    half3 far = rcp(half3(_SoftEdgeRange, _WaterColorRange, _FoamEdgeRange));
+    
+    float depth = SAMPLE_TEXTURE2D(_CameraDepthTexture, sampler_CameraDepthTexture, positionSS.xy).r;
+    half sceneZ = LinearEyeDepth(depth, _ZBufferParams);
+    half thisZ = input.positionNDC.z;// LinearEyeDepth(positionNDC.z, _ZBufferParams);
+    edge = sceneZ - thisZ;
+    half3 fade = saturate (far * edge);
+    edge = fade.z; //use for foam
 
-        color = lerp(_WaterColorNear.rgb, _WaterColorFar.rgb, fade.y);
-        alpha = fade.x;
-    #else
-        color = input.vColor.rgb;
-        edge = alpha = input.vColor.a;
-    #endif
+    color = lerp(_WaterColorNear.rgb, _WaterColorFar.rgb, fade.y);
+    alpha = fade.x;
+#else
+    color = input.vColor.rgb;
+    edge = alpha = input.vColor.a;
+#endif
     half foamEdge = edge;//saturate(lerp(0, _FoamEdgeRange, edge));
 
     half3 normalTS = bump0.xyz + bump1.xyz - 1;  // ((bump0 * 2 - 1) + (bump1 * 2 - 1)) / 2
@@ -124,41 +138,60 @@ half4 WaterLitFrag(Varyings input): SV_TARGET
     half3 envNormal = lerp(input.normalWS.xyz, normalWS, _EnvNormalScale);
 
     Surface surface = (Surface)0;
-    surface.albedo = color;
+    surface.albedo = half4(color, 1);
     surface.normal = normalWS;
     surface.viewDirection = viewDirWS;
     surface.metallic = 0;
     surface.occlusion = 1;
     surface.smoothness = _Smoothness;
-    surface.position = input.positionWS;
+    surface.position = input.positionWSAndFog.xyz;
     surface.fresnelStrength = 1;
-    surface.specularStrength = 1;
     surface.specularTint = 1;
 
     half fresnel = 1 - max(0, dot(envNormal, surface.viewDirection));
-    fresnel = pow(fresnel, _FresnelPower);
+    fresnel = PositivePow(fresnel, _FresnelPower);
     alpha *= fresnel;
     alpha *= _Transparent;
 
+    half4 shadowCoord = 0;
+#if _MAIN_LIGHT_SHADOWS
+    shadowCoord = input.shadowCoord;
+#endif 
+
     //lighting
-    Light light = GetMainLight();
-    BRDF brdf = GetBRDF(surface);
-    half3 specColor = SpecularStrength(surface, brdf, light) * light.color;
+    Light light = GetMainLight(shadowCoord);
+    half a = 1;
+    BRDF brdf = GetBRDF(surface, a);
+    half3 specColor = SpecularStrength(surface, brdf, light) * light.color * light.shadowAttenuation;
     surface.normal = envNormal;
     half3 envReflection = SampleEnvironment (surface, brdf);
+    #if _REFLECTION_TEXTURE
+        half2 reflectionUV = positionSS.xy;
+        reflectionUV.xy += surface.normal.xz * 0.5;
+        half4 env = tex2D(_ReflectionTex, reflectionUV);
+        env.a *= _ReflectionTransparent;
+        envReflection = lerp(envReflection, env.rgb, env.a);
+    #endif
 
     //wave
     half threshold = positiveSin((surface.position.x + _Time.y * _ThresholdSpeed) * _ThresholdDensity);
     threshold *= _MaxThreshold * (_ThresholdFalloff - edge);
     half wave = positiveSin(edge * _FoamDensity - _Time.y * _FoamSpeed);
     wave = saturate(nearBin(threshold, wave, 1) + nearBin(threshold, edge, 0));
-    wave *= foamEdge * _FoamColor;
+    half3 waveColor = wave * foamEdge * _FoamColor.rgb;
 
     //final color
-    color += specColor;
     color += color * envReflection;
+    color += specColor;   
     color *= alpha;
-    color += wave;
+    color += waveColor;
+
+#if _MAIN_LIGHT_SHADOWS
+    half shadow = light.shadowAttenuation * 0.5 + 0.5;
+    color *= shadow;
+#endif 
+
+    color = MixFog(color, input.positionWSAndFog.w);
 
     return half4(color, alpha);
 }

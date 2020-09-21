@@ -1,9 +1,7 @@
 #ifndef BIOUM_SCENE_COMMON_PASS_INCLUDE
 #define BIOUM_SCENE_COMMON_PASS_INCLUDE
 
-#include "SceneCommonInput.hlsl"
 #include "../Shader/ShaderLibrary/Lighting.hlsl"
-#include "../Shader/ShaderLibrary/Fog.hlsl"
 
 struct Attributes
 {
@@ -22,7 +20,7 @@ struct Varyings
     DECLARE_GI_DATA(lightmapUV, vertexSH, 1);
     real3 positionWS: TEXCOORD2;
     
-#ifdef _NORMALMAP
+#if _NORMALMAP
     real4 tangentWS: TEXCOORD4;    // xyz: tangent, w: viewDir.x
     real4 bitangentWS: TEXCOORD5;    // xyz: binormal, w: viewDir.y
     real4 normalWS: TEXCOORD3;    // xyz: normal, w: viewDir.z
@@ -32,9 +30,12 @@ struct Varyings
 #endif
     
     real4 VertexLightAndFog: TEXCOORD6; // w: fogFactor, xyz: vertex light
+
+#if _MAIN_LIGHT_SHADOWS
+    real4 shadowCoord : TEXCOORD7;
+#endif
     
     UNITY_VERTEX_INPUT_INSTANCE_ID
-    UNITY_VERTEX_OUTPUT_STEREO
 };
 
 Varyings CommonLitVert(Attributes input)
@@ -46,7 +47,7 @@ Varyings CommonLitVert(Attributes input)
     output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
     output.positionCS = TransformWorldToHClip(output.positionWS);
     
-    half3 viewDirWS = SafeNormalize(_WorldSpaceCameraPos - output.positionWS);
+    half3 viewDirWS = _WorldSpaceCameraPos - output.positionWS;
 #if _NORMALMAP
     VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
     output.tangentWS = half4(normalInput.tangentWS, viewDirWS.x);
@@ -70,7 +71,11 @@ Varyings CommonLitVert(Attributes input)
         output.VertexLightAndFog.rgb += Lambert(light.color, light.direction, output.normalWS.xyz);
     }
 #endif
-    output.VertexLightAndFog.w = ComputeFogFactor(output.positionWS, 1);
+    output.VertexLightAndFog.w = ComputeFogFactor(output.positionCS.z);
+
+#if _MAIN_LIGHT_SHADOWS
+    output.shadowCoord = TransformWorldToShadowCoord(output.positionWS);
+#endif
     
     return output;
 }
@@ -80,50 +85,52 @@ half4 CommonLitFrag(Varyings input): SV_TARGET
     UNITY_SETUP_INSTANCE_ID(input);
     
     Surface surface = (Surface)0;
-    surface.albedo = sampleBaseMap(input.uv.xy).rgb;
+    surface.albedo = sampleBaseMap(input.uv.xy);
+    #if _ALPHATEST_ON
+        clip(surface.albedo.a - _Cutoff);
+    #endif
     
 #if _NORMALMAP
-    half3 normalTS = sampleBumpMap(input.uv.xy);
+    half3 normalTS = sampleNormalMap(input.uv.xy);
     half3x3 TBN = half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz);
     half3 normalWS = mul(normalTS, TBN);
     half3 viewDirWS = half3(input.tangentWS.w, input.bitangentWS.w, input.normalWS.w);
-    half3 originalNormal = input.normalWS.xyz;
 #else
     half3 normalWS = input.normalWS;
     half3 viewDirWS = input.viewDirWS;
-    half3 originalNormal = normalWS;
 #endif
     surface.normal = SafeNormalize(normalWS);
-    surface.viewDirection = viewDirWS;
+    surface.viewDirection = SafeNormalize(viewDirWS);
     
     half4 maes = sampleMAESMap(input.uv.xy);
     surface.metallic = maes.r;
     surface.occlusion = maes.g;
     surface.smoothness = maes.a;
-    surface.specularStrength = _SpecularStrength;
     surface.specularTint = _SpecularTint;
-    
     surface.position = input.positionWS;
-    surface.fresnelStrength = sampleFresnel(input.uv.xy).r;
+    surface.fresnelStrength = GetFresnel();
+    surface.SSSColor = GetSSSColor();
 
-    surface.clearCoat = _ClearCoat;
-    surface.clearCoatNormal = originalNormal;
-    
-#ifdef _SSS
-    surface.SSSNormal = lerp(originalNormal, surface.normal, _SSSBumpScale);
-    surface.SSSColor = sampleSSSMap(input.uv.xy);
-#endif
+    half3 emissive = maes.b * _EmiColor.rgb;
+    half4 rimColor = GetRimColor();
+
     
     VertexData vertexData = (VertexData)0;
     vertexData.lighting = input.VertexLightAndFog.rgb;
+#if _MAIN_LIGHT_SHADOWS
+    vertexData.shadowCoord = input.shadowCoord;
+#endif
     
-    BRDF brdf = GetBRDF(surface);
+    half alpha = GetAlpha() * surface.albedo.a;
+    BRDF brdf = GetBRDF(surface, alpha);
     GI gi = GET_GI(input.lightmapUV, input.vertexSH, surface, brdf);
     
-    half3 color = LightingPBR(brdf, surface, vertexData, gi);
+    half3 color = LightingPBR(brdf, surface, vertexData, gi, rimColor);
+    color += emissive;
 
+    color = MixFog(color, input.VertexLightAndFog.w);
     
-    return half4(color, 1);
+    return half4(color, alpha);
 }
 
 

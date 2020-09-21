@@ -3,6 +3,8 @@
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
+
 
 real Square(real v)
 {
@@ -26,6 +28,12 @@ real positiveSin(real x)
 {
     x = fmod(x, TWO_PI);
     return sin(x) * 0.5 + 0.5;
+}
+
+real4 LerpWhiteTo(real4 b, real t)
+{
+    real oneMinusT = 1.0 - t;
+    return real4(oneMinusT, oneMinusT, oneMinusT, oneMinusT) + b * t;
 }
 
 TEXTURE2D_FLOAT(_CameraDepthTexture);

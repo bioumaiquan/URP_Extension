@@ -59,11 +59,13 @@ Light GetMainLight()
 {
     Light light;
     light.direction = _MainLightPosition.xyz;
+
     // unity_LightData.z is 1 when not culled by the culling mask, otherwise 0.
     light.distanceAttenuation = unity_LightData.z;
 #if defined(LIGHTMAP_ON) || defined(_MIXED_LIGHTING_SUBTRACTIVE)
     // unity_ProbesOcclusion.x is the mixed light probe occlusion data
     light.distanceAttenuation *= unity_ProbesOcclusion.x;
+    
 #endif
     light.shadowAttenuation = 1.0;
     light.color = _MainLightColor.rgb;
@@ -71,10 +73,15 @@ Light GetMainLight()
     return light;
 }
 
-Light GetMainLight(float4 shadowCoord)
+Light GetMainLight(float4 shadowCoord, half shadowMask = 1)
 {
     Light light = GetMainLight();
-    light.shadowAttenuation = MainLightRealtimeShadow(shadowCoord);
+    half realtimeShadow = MainLightRealtimeShadow(shadowCoord);
+    #if SHADOWS_SHADOWMASK && LIGHTMAP_ON
+        light.shadowAttenuation = min(realtimeShadow, shadowMask);
+    #else
+        light.shadowAttenuation = realtimeShadow;
+    #endif
     return light;
 }
 
@@ -129,6 +136,72 @@ Light GetAdditionalPerObjectLight(int perObjectLightIndex, float3 positionWS)
     return light;
 }
 
+uint GetPerObjectLightIndexOffset()
+{
+#if USE_STRUCTURED_BUFFER_FOR_LIGHT_DATA
+    return unity_LightData.x;
+#else
+    return 0;
+#endif
+}
 
+// Returns a per-object index given a loop index.
+// This abstract the underlying data implementation for storing lights/light indices
+int GetPerObjectLightIndex(uint index)
+{
+/////////////////////////////////////////////////////////////////////////////////////////////
+// Structured Buffer Path                                                                   /
+//                                                                                          /
+// Lights and light indices are stored in StructuredBuffer. We can just index them.         /
+// Currently all non-mobile platforms take this path :(                                     /
+// There are limitation in mobile GPUs to use SSBO (performance / no vertex shader support) /
+/////////////////////////////////////////////////////////////////////////////////////////////
+#if USE_STRUCTURED_BUFFER_FOR_LIGHT_DATA
+    uint offset = unity_LightData.x;
+    return _AdditionalLightsIndices[offset + index];
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+// UBO path                                                                                 /
+//                                                                                          /
+// We store 8 light indices in float4 unity_LightIndices[2];                                /
+// Due to memory alignment unity doesn't support int[] or float[]                           /
+// Even trying to reinterpret cast the unity_LightIndices to float[] won't work             /
+// it will cast to float4[] and create extra register pressure. :(                          /
+/////////////////////////////////////////////////////////////////////////////////////////////
+#elif !defined(SHADER_API_GLES)
+    // since index is uint shader compiler will implement
+    // div & mod as bitfield ops (shift and mask).
+    
+    // TODO: Can we index a float4? Currently compiler is
+    // replacing unity_LightIndicesX[i] with a dp4 with identity matrix.
+    // u_xlat16_40 = dot(unity_LightIndices[int(u_xlatu13)], ImmCB_0_0_0[u_xlati1]);
+    // This increases both arithmetic and register pressure.
+    return unity_LightIndices[index / 4][index % 4];
+#else
+    // Fallback to GLES2. No bitfield magic here :(.
+    // We limit to 4 indices per object and only sample unity_4LightIndices0.
+    // Conditional moves are branch free even on mali-400
+    // small arithmetic cost but no extra register pressure from ImmCB_0_0_0 matrix.
+    half2 lightIndex2 = (index < 2.0h) ? unity_LightIndices[0].xy : unity_LightIndices[0].zw;
+    half i_rem = (index < 2.0h) ? index : index - 2.0h;
+    return (i_rem < 1.0h) ? lightIndex2.x : lightIndex2.y;
+#endif
+}
+
+// Fills a light struct given a loop i index. This will convert the i
+// index to a perObjectLightIndex
+Light GetAdditionalLight(uint i, float3 positionWS)
+{
+    int perObjectLightIndex = GetPerObjectLightIndex(i);
+    return GetAdditionalPerObjectLight(perObjectLightIndex, positionWS);
+}
+
+int GetAdditionalLightsCount()
+{
+    // TODO: we need to expose in SRP api an ability for the pipeline cap the amount of lights
+    // in the culling. This way we could do the loop branch with an uniform
+    // This would be helpful to support baking exceeding lights in SH as well
+    return min(_AdditionalLightsCount.x, unity_LightData.y);
+}
 
 #endif  //BIOUM_LIGHT_INCLUDED

@@ -34,6 +34,7 @@ public class SceneSimpleLitGUI : ShaderGUI
     MaterialProperty baseColor = null;
     MaterialProperty normalMap = null;
     MaterialProperty normalScale = null;
+    MaterialProperty normalMapSwitch = null;
     MaterialProperty maesMap = null;
     MaterialProperty emissiveColor = null;
     MaterialProperty AOStrength = null;
@@ -54,6 +55,7 @@ public class SceneSimpleLitGUI : ShaderGUI
         baseColor = FindProperty("_BaseColor", props);
         normalMap = FindProperty("_NormalMap", props);
         normalScale = FindProperty("_NormalScale", props);
+        normalMapSwitch = FindProperty("_NormalMapDXGLSwitch", props);
         maesMap = FindProperty("_MAESMap", props);
         emissiveColor = FindProperty("_EmiColor", props);
         AOStrength = FindProperty("_AOStrength", props);
@@ -174,6 +176,8 @@ public class SceneSimpleLitGUI : ShaderGUI
         EditorGUILayout.Space(10);
         m_MaterialEditor.TexturePropertySingleLine(Styles.baseMapText, baseMap, baseColor);
         m_MaterialEditor.TexturePropertySingleLine(Styles.normalMapText, normalMap, normalScale);
+        if (normalMap.textureValue != null)
+            m_MaterialEditor.ShaderProperty(normalMapSwitch, "DX/OpenGL切换", indent);
 
         { // for bake
             material.SetTexture("_MainTex", baseMap.textureValue);

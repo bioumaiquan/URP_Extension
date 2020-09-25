@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-public class SceneCommonGUI : ShaderGUI
+public class CharacterSkinGUI : ShaderGUI
 {
     public enum BlendMode
     {

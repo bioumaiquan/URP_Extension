@@ -15,6 +15,8 @@ half _NormalScale;
 half _AOStrength;
 half _Transparent;
 half _Cutoff;
+
+bool _NormalMapDXGLSwitch;
 CBUFFER_END
 
 TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
@@ -38,6 +40,7 @@ half4 sampleMAESMap(float2 uv)
 half3 sampleNormalMap(float2 uv)
 {
     half4 map = SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, uv);
+    map.y = _NormalMapDXGLSwitch ? 1 - map.y : map.y;
     return UnpackNormalScale(map, _NormalScale);
 }
 

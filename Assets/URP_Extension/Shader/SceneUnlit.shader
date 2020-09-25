@@ -2,10 +2,10 @@
 {
     Properties
     {
-        [HDR]_RimColor("边缘光颜色", Color) = (1,1,1,1)
+        [HDR]_RimColor("边缘光颜色", Color) = (0,0,0,1)
         _RimPower("边缘光范围", range(0.5, 10)) = 4
-        [MainColor]_BaseColor("颜色", Color) = (1,1,1,1)
-        [MainTexture]_BaseMap ("贴图", 2D) = "grey" {}
+        [MainColor][HDR]_BaseColor("颜色", Color) = (1,1,1,1)
+        [MainTexture]_BaseMap ("贴图", 2D) = "white" {}
         _Cutoff ("透贴强度", range(0,1)) = 0.5
         _Transparent ("透明度", range(0,1)) = 1
 

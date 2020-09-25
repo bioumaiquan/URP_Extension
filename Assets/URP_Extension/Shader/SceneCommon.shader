@@ -12,6 +12,7 @@
 
         [NoScaleOffset]_NormalMap ("法线贴图", 2D) = "bump" {}
         _NormalScale("法线强度", Range(-2.0, 2.0)) = 1.0
+        [Toggle] _NormalMapDXGLSwitch ("OpenGL/DX Switch", float) = 0
 
         _SmoothnessMin("光滑度Min", Range(0.0, 1.0)) = 0
         _SmoothnessMax("光滑度Max", Range(0.0, 1.0)) = 1
@@ -23,7 +24,7 @@
         [Toggle(_SSS)] _sssToggle ("SSS开关", float) = 0
         _SSSColor ("SSS颜色", Color) = (0.7, 0.07, 0.01, 1)
 
-        [HDR]_RimColor ("边缘光颜色", Color) = (1, 1, 1, 1)
+        [HDR]_RimColor ("边缘光颜色", Color) = (0,0,0,1)
         _RimPower ("边缘光范围", range(1, 20)) = 4
 
         [HideInInspector] _BlendMode ("_BlendMode", float) = 0

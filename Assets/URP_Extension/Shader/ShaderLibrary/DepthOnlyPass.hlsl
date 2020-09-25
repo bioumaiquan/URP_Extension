@@ -10,7 +10,9 @@ struct Attributes
 
 struct Varyings
 {
+    #if _ALPHATEST_ON
     float2 uv           : TEXCOORD0;
+    #endif
     float4 positionCS   : SV_POSITION;
     UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
@@ -22,7 +24,9 @@ Varyings DepthOnlyVertex(Attributes input)
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
+    #if _ALPHATEST_ON
     output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
+    #endif
     output.positionCS = TransformObjectToHClip(input.position.xyz);
     return output;
 }
@@ -30,6 +34,11 @@ Varyings DepthOnlyVertex(Attributes input)
 half4 DepthOnlyFragment(Varyings input) : SV_TARGET
 {
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+    #if _ALPHATEST_ON
+        half alpha = sampleBaseMap(input.uv).a;
+        clip(alpha - _Cutoff);
+    #endif
 
    // Alpha(SampleAlbedoAlpha(input.uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)).a, _BaseColor, _Cutoff);
     return 0;

@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-public class SceneCommonGUI : ShaderGUI
+public class CharacterCommonGUI : ShaderGUI
 {
     public enum BlendMode
     {
@@ -201,12 +201,6 @@ public class SceneCommonGUI : ShaderGUI
 
         EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(emissiveColor, "自发光");
-        EditorGUI.BeginChangeCheck();
-        m_MaterialEditor.LightmapEmissionProperty(indent);
-        if (EditorGUI.EndChangeCheck())
-        {
-            material.globalIlluminationFlags &= ~MaterialGlobalIlluminationFlags.EmissiveIsBlack;
-        }
 
         EditorGUILayout.Space(10);
         if (maesMap.textureValue != null)

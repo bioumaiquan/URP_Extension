@@ -1,5 +1,5 @@
-#ifndef BIOUM_SCENE_SIMPLELIT_PASS_INCLUDE
-#define BIOUM_SCENE_SIMPLELIT_PASS_INCLUDE
+#ifndef BIOUM_SCENE_COMMON_PASS_INCLUDE
+#define BIOUM_SCENE_COMMON_PASS_INCLUDE
 
 #include "../Shader/ShaderLibrary/Lighting.hlsl"
 
@@ -38,7 +38,7 @@ struct Varyings
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
-Varyings SimpleLitVert(Attributes input)
+Varyings CommonLitVert(Attributes input)
 {
     Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
@@ -80,7 +80,7 @@ Varyings SimpleLitVert(Attributes input)
     return output;
 }
 
-half4 SimpleLitFrag(Varyings input): SV_TARGET
+half4 CommonLitFrag(Varyings input): SV_TARGET
 {
     UNITY_SETUP_INSTANCE_ID(input);
     
@@ -103,13 +103,18 @@ half4 SimpleLitFrag(Varyings input): SV_TARGET
     surface.viewDirection = SafeNormalize(viewDirWS);
     
     half4 maes = sampleMAESMap(input.uv.xy);
-    surface.occlusion = maes.r;
+    surface.metallic = maes.r;
+    surface.occlusion = maes.g;
+    surface.smoothness = maes.a;
+    surface.specularTint = _SpecularTint;
     surface.position = input.positionWS;
+    surface.fresnelStrength = GetFresnel();
     surface.SSSColor = GetSSSColor();
 
-    half3 emissive = maes.a * _EmiColor.rgb;
+    half3 emissive = maes.b * _EmiColor.rgb;
     half4 rimColor = GetRimColor();
 
+    
     VertexData vertexData = (VertexData)0;
     vertexData.lighting = input.VertexLightAndFog.rgb;
 #if _MAIN_LIGHT_SHADOWS
@@ -117,14 +122,13 @@ half4 SimpleLitFrag(Varyings input): SV_TARGET
 #endif
     
     half alpha = GetAlpha() * surface.albedo.a;
-    GI gi = GET_SIMPLE_GI(input.lightmapUV, input.vertexSH, surface);
+    BRDF brdf = GetBRDF(surface, alpha);
+    GI gi = GET_GI(input.lightmapUV, input.vertexSH, surface, brdf);
     
-    half3 color = LightingLambert(surface, vertexData, gi, rimColor);
+    half3 color = LightingPBR(brdf, surface, vertexData, gi, rimColor);
     color += emissive;
 
     color = MixFog(color, input.VertexLightAndFog.w);
-
-    color = sampleNormalMap(input.uv.xy);
     
     return half4(color, alpha);
 }

@@ -1,5 +1,5 @@
-#ifndef BIOUM_SCENE_SIMPLELIT_PASS_INCLUDE
-#define BIOUM_SCENE_SIMPLELIT_PASS_INCLUDE
+#ifndef BIOUM_SCENE_COMMON_PASS_INCLUDE
+#define BIOUM_SCENE_COMMON_PASS_INCLUDE
 
 #include "../Shader/ShaderLibrary/Lighting.hlsl"
 
@@ -17,17 +17,12 @@ struct Varyings
 {
     real4 positionCS: SV_POSITION;
     real4 uv: TEXCOORD0;
-    DECLARE_GI_DATA(lightmapUV, vertexSH, 1);
+    real3 vertexSH : TEXCOORD1;
     real3 positionWS: TEXCOORD2;
     
-#if _NORMALMAP
     real4 tangentWS: TEXCOORD4;    // xyz: tangent, w: viewDir.x
     real4 bitangentWS: TEXCOORD5;    // xyz: binormal, w: viewDir.y
     real4 normalWS: TEXCOORD3;    // xyz: normal, w: viewDir.z
-#else
-    real3 normalWS: TEXCOORD3;
-    real3 viewDirWS: TEXCOORD4;
-#endif
     
     real4 VertexLightAndFog: TEXCOORD6; // w: fogFactor, xyz: vertex light
 
@@ -38,7 +33,7 @@ struct Varyings
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
-Varyings SimpleLitVert(Attributes input)
+Varyings CommonLitVert(Attributes input)
 {
     Varyings output = (Varyings)0;
     UNITY_SETUP_INSTANCE_ID(input);
@@ -48,19 +43,14 @@ Varyings SimpleLitVert(Attributes input)
     output.positionCS = TransformWorldToHClip(output.positionWS);
     
     half3 viewDirWS = _WorldSpaceCameraPos - output.positionWS;
-#if _NORMALMAP
     VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
     output.tangentWS = half4(normalInput.tangentWS, viewDirWS.x);
     output.bitangentWS = half4(normalInput.bitangentWS, viewDirWS.y);
     output.normalWS = half4(normalInput.normalWS, viewDirWS.z);
-#else
-    output.normalWS = TransformObjectToWorldNormal(input.normalOS);
-    output.viewDirWS = viewDirWS;
-#endif
     
     output.uv.xy = TRANSFORM_TEX(input.texcoord, _BaseMap);
+    output.uv.zw = TRANSFORM_TEX(input.texcoord, _ShiftMap);
     
-    OUTPUT_GI_LIGHTMAP_UV(input.lightmapUV, unity_LightmapST, output.lightmapUV);
     OUTPUT_GI_SH(output.normalWS.xyz, output.vertexSH);
     
 #ifdef _ADDITIONAL_LIGHTS_VERTEX
@@ -80,7 +70,7 @@ Varyings SimpleLitVert(Attributes input)
     return output;
 }
 
-half4 SimpleLitFrag(Varyings input): SV_TARGET
+half4 CommonLitFrag(Varyings input): SV_TARGET
 {
     UNITY_SETUP_INSTANCE_ID(input);
     
@@ -94,22 +84,29 @@ half4 SimpleLitFrag(Varyings input): SV_TARGET
     half3 normalTS = sampleNormalMap(input.uv.xy);
     half3x3 TBN = half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz);
     half3 normalWS = mul(normalTS, TBN);
-    half3 viewDirWS = half3(input.tangentWS.w, input.bitangentWS.w, input.normalWS.w);
 #else
     half3 normalWS = input.normalWS;
-    half3 viewDirWS = input.viewDirWS;
 #endif
+
+    half3 viewDirWS = half3(input.tangentWS.w, input.bitangentWS.w, input.normalWS.w);
+    half3 tangentWS = _SwitchTangent ? input.bitangentWS.xyz : input.tangentWS.xyz;
+    tangentWS = SafeNormalize(tangentWS);
+
     surface.normal = SafeNormalize(normalWS);
     surface.viewDirection = SafeNormalize(viewDirWS);
     
-    half4 maes = sampleMAESMap(input.uv.xy);
-    surface.occlusion = maes.r;
+    half4 maskMap = GetMask(input.uv.xy);
+    surface.metallic = _Metallic;
+    surface.occlusion = maskMap.w;
+    surface.smoothness = _Smoothness;
+    surface.specularTint = 0.5;
     surface.position = input.positionWS;
+    surface.fresnelStrength = GetFresnel();
     surface.SSSColor = GetSSSColor();
 
-    half3 emissive = maes.a * _EmiColor.rgb;
     half4 rimColor = GetRimColor();
 
+    
     VertexData vertexData = (VertexData)0;
     vertexData.lighting = input.VertexLightAndFog.rgb;
 #if _MAIN_LIGHT_SHADOWS
@@ -117,14 +114,16 @@ half4 SimpleLitFrag(Varyings input): SV_TARGET
 #endif
     
     half alpha = GetAlpha() * surface.albedo.a;
-    GI gi = GET_SIMPLE_GI(input.lightmapUV, input.vertexSH, surface);
+    BRDF brdf = GetBRDF(surface, alpha);
+    GI gi = GET_GI(input.lightmapUV, input.vertexSH, surface, brdf);
     
-    half3 color = LightingLambert(surface, vertexData, gi, rimColor);
-    color += emissive;
+    half2 shift = maskMap.xy;
+    half2 intensity = GetIntensity();
+    half subSmoothness = GetSubSmooth();
+    
+    half3 color = LightingHair(brdf, surface, gi, vertexData, tangentWS, shift, intensity, subSmoothness, rimColor);
 
     color = MixFog(color, input.VertexLightAndFog.w);
-
-    color = sampleNormalMap(input.uv.xy);
     
     return half4(color, alpha);
 }

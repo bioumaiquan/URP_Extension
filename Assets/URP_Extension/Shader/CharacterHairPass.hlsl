@@ -85,7 +85,7 @@ half4 CommonLitFrag(Varyings input): SV_TARGET
     half3x3 TBN = half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz);
     half3 normalWS = mul(normalTS, TBN);
 #else
-    half3 normalWS = input.normalWS;
+    half3 normalWS = input.normalWS.xyz;
 #endif
 
     half3 viewDirWS = half3(input.tangentWS.w, input.bitangentWS.w, input.normalWS.w);

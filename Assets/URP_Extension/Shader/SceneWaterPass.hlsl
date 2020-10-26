@@ -10,7 +10,7 @@ sampler2D _NormalTex;
 sampler2D _ReflectionTex; 
 CBUFFER_START(UnityPerMaterial)
 half4 _WaveSpeed;
-half4 _NormalTex_ST;
+float4 _NormalTex_ST;
 half _NormalScale, _EnvNormalScale;
 half _SoftEdgeRange, _WaterColorRange;
 half4 _WaterColorNear, _WaterColorFar;
@@ -31,8 +31,8 @@ CBUFFER_END
 
 struct Attributes
 {
-    float4 positionOS: POSITION;
-    real2 texcoord: TEXCOORD0;
+    float3 positionOS: POSITION;
+    float2 texcoord: TEXCOORD0;
     real3 normalOS : NORMAL;
     real4 tangentOS : TANGENT;
     half4 color : COLOR;
@@ -41,7 +41,7 @@ struct Attributes
 struct Varyings
 {
     float4 positionCS: SV_POSITION;
-    real4 uv: TEXCOORD0;
+    float4 uv: TEXCOORD0;
     real4 positionWSAndFog: TEXCOORD1;
     real4 tangentWS: TEXCOORD2;
     real4 bitangentWS: TEXCOORD3;
@@ -64,8 +64,8 @@ Varyings WaterLitVert(Attributes input)
     output.positionNDC = vertexPositions.positionNDC;
     output.positionNDC.z = -vertexPositions.positionVS.z;
     
-    half4 uv = input.texcoord.xyxy * _NormalTex_ST.xyxy * half4(1,1,1.3,1.28);
-    output.uv = uv + _Time.x * _WaveSpeed; 
+    float4 uv = input.texcoord.xyxy * _NormalTex_ST.xyxy * float4(1,1,1.3,1.28);
+    output.uv = uv + frac(_Time.x * _WaveSpeed); 
 
     half3 viewDirWS = _WorldSpaceCameraPos.xyz - vertexPositions.positionWS;
     VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
@@ -174,17 +174,22 @@ half4 WaterLitFrag(Varyings input): SV_TARGET
     #endif
 
     //wave
+#if _WAVE
     half threshold = positiveSin((surface.position.x + _Time.y * _ThresholdSpeed) * _ThresholdDensity);
     threshold *= _MaxThreshold * (_ThresholdFalloff - edge);
     half wave = positiveSin(edge * _FoamDensity - _Time.y * _FoamSpeed);
     wave = saturate(nearBin(threshold, wave, 1) + nearBin(threshold, edge, 0));
     half3 waveColor = wave * foamEdge * _FoamColor.rgb;
+#endif
 
     //final color
     color += color * envReflection;
-    color += specColor;   
+    color += specColor * foamEdge;   
     color *= alpha;
+
+#if _WAVE
     color += waveColor;
+#endif
 
 #if _MAIN_LIGHT_SHADOWS
     half shadow = light.shadowAttenuation * 0.5 + 0.5;
@@ -192,6 +197,8 @@ half4 WaterLitFrag(Varyings input): SV_TARGET
 #endif 
 
     color = MixFog(color, input.positionWSAndFog.w);
+
+    color = max(0.001, color);
 
     return half4(color, alpha);
 }

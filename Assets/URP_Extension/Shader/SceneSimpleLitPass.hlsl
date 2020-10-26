@@ -10,6 +10,7 @@ struct Attributes
     real4 tangentOS: TANGENT;
     real2 texcoord: TEXCOORD0;
     real2 lightmapUV: TEXCOORD1;
+    real4 color : COLOR;
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
@@ -45,6 +46,9 @@ Varyings SimpleLitVert(Attributes input)
     UNITY_TRANSFER_INSTANCE_ID(input, output);
     
     output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
+    #if _WIND
+        output.positionWS.xz += WindAnimation(output.positionWS) * input.color.r * _WindIntensity;
+    #endif
     output.positionCS = TransformWorldToHClip(output.positionWS);
     
     half3 viewDirWS = _WorldSpaceCameraPos - output.positionWS;
@@ -103,11 +107,11 @@ half4 SimpleLitFrag(Varyings input): SV_TARGET
     surface.viewDirection = SafeNormalize(viewDirWS);
     
     half4 maes = sampleMAESMap(input.uv.xy);
-    surface.occlusion = maes.r;
+    surface.occlusion = maes.a;
     surface.position = input.positionWS;
     surface.SSSColor = GetSSSColor();
 
-    half3 emissive = maes.a * _EmiColor.rgb;
+    half3 emissive = maes.r * _EmiColor.rgb;
     half4 rimColor = GetRimColor();
 
     VertexData vertexData = (VertexData)0;
@@ -122,9 +126,11 @@ half4 SimpleLitFrag(Varyings input): SV_TARGET
     half3 color = LightingLambert(surface, vertexData, gi, rimColor);
     color += emissive;
 
-    color = MixFog(color, input.VertexLightAndFog.w);
+#if GREY
+    color = Luminance(color);
+#endif
 
-    color = sampleNormalMap(input.uv.xy);
+    color = MixFog(color, input.VertexLightAndFog.w);
     
     return half4(color, alpha);
 }

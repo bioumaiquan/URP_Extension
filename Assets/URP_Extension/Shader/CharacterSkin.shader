@@ -1,4 +1,4 @@
-﻿Shader "Bioum/Character/CommonLit"
+﻿Shader "Bioum/Character/Skin"
 {
     Properties
     {
@@ -253,5 +253,5 @@
             ENDHLSL
         }
     }
-    CustomEditor "CharacterCommonGUI"
+    CustomEditor "CharacterSkinGUI"
 }

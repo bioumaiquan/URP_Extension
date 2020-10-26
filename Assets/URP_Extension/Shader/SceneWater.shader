@@ -56,6 +56,7 @@
             #pragma multi_compile_fog
             
             #define _ENABLE_DEPTH_TEXTURE 1
+            #define _WAVE 1
             
             #pragma vertex WaterLitVert
             #pragma fragment WaterLitFrag
@@ -93,6 +94,7 @@
             
             #define _ENABLE_DEPTH_TEXTURE 1
             #define _REFLECTION_TEXTURE 0
+            #define _WAVE 1
             
             #pragma vertex WaterLitVert
             #pragma fragment WaterLitFrag
@@ -128,6 +130,7 @@
 
             #define _ENABLE_DEPTH_TEXTURE 0
             #define _REFLECTION_TEXTURE 0
+            #define _WAVE 0
             #pragma multi_compile_fog
             
             #pragma vertex WaterLitVert

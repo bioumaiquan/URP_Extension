@@ -19,6 +19,9 @@
         [Toggle(_SSS)] _sssToggle ("SSS开关", float) = 0
         _SSSColor ("SSS颜色", Color) = (0.7, 0.07, 0.01, 1)
 
+        [Toggle(_WIND)] _WindToggle ("风开关", float) = 0
+        _WindIntensity ("风强度", range(0, 4)) = 1
+
         [HDR]_RimColor ("边缘光颜色", Color) = (0,0,0,1)
         _RimPower ("边缘光范围", range(1, 20)) = 4
 
@@ -54,14 +57,17 @@
 
             #pragma multi_compile_fog
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
-            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            //#pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile _ GREY
 
-            #pragma shader_feature _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON
-            #pragma shader_feature _ _NORMALMAP
-            #pragma shader_feature _ _SSS
-            #pragma shader_feature _ _RIM
+            //#pragma shader_feature _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON
+            //#pragma shader_feature _ _NORMALMAP
+            //#pragma shader_feature _ _MASEMAP
+            //#pragma shader_feature _ _SSS
+            //#pragma shader_feature _ _RIM
+            #pragma shader_feature _ _WIND
             
             #pragma vertex SimpleLitVert
             #pragma fragment SimpleLitFrag
@@ -85,7 +91,8 @@
 
             //#pragma multi_compile_instancing
 
-            #pragma shader_feature _ _ALPHATEST_ON
+            //#pragma shader_feature _ _ALPHATEST_ON
+            #pragma shader_feature _ _WIND
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
 
@@ -109,7 +116,8 @@
             #pragma vertex DepthOnlyVertex
             #pragma fragment DepthOnlyFragment
 
-            #pragma shader_feature _ALPHATEST_ON
+            //#pragma shader_feature _ _ALPHATEST_ON
+            #pragma shader_feature _ _WIND
 
             #include "../Shader/ShaderLibrary/DepthOnlyPass.hlsl"
             ENDHLSL
@@ -161,13 +169,16 @@
 
             #pragma multi_compile_fog
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
-            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            //#pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile _ GREY
 
-            #pragma shader_feature _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON
-            #pragma shader_feature _ _RIM
-            #pragma shader_feature _ _SSS
+            //#pragma shader_feature _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON
+            //#pragma shader_feature _ _MASEMAP
+            //#pragma shader_feature _ _RIM
+            //#pragma shader_feature _ _SSS
+            #pragma shader_feature _ _WIND
             
             #pragma vertex SimpleLitVert
             #pragma fragment SimpleLitFrag
@@ -175,6 +186,30 @@
             #define _NORMALMAP 0
 
             #include "SceneSimpleLitPass.hlsl"
+            ENDHLSL
+        }
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags{"LightMode" = "ShadowCaster"}
+
+            ZWrite On ZTest LEqual
+            Cull Off ColorMask 0
+
+            HLSLPROGRAM
+            // Required to compile gles 2.0 with standard srp library
+            #pragma prefer_hlslcc gles
+            #pragma exclude_renderers d3d11_9x
+            #pragma target 2.0
+
+            //#pragma multi_compile_instancing
+
+            //#pragma shader_feature _ _ALPHATEST_ON
+            #pragma shader_feature _ _WIND
+            #pragma vertex ShadowPassVertex
+            #pragma fragment ShadowPassFragment
+
+            #include "../Shader/ShaderLibrary/ShadowCasterPass.hlsl"
             ENDHLSL
         }
         Pass
@@ -194,7 +229,8 @@
             #pragma vertex DepthOnlyVertex
             #pragma fragment DepthOnlyFragment
 
-            #pragma shader_feature _ALPHATEST_ON
+            //#pragma shader_feature _ _ALPHATEST_ON
+            #pragma shader_feature _ _WIND
 
             #include "../Shader/ShaderLibrary/DepthOnlyPass.hlsl"
             ENDHLSL
@@ -248,19 +284,22 @@
             //#pragma multi_compile _ _MAIN_LIGHT_SHADOWS
             //#pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
             //#pragma multi_compile _ _SHADOWS_SOFT
-            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            //#pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile _ SHADOWS_SHADOWMASK
+            #pragma multi_compile _ GREY
             //#pragma multi_compile_instancing
 
-            #pragma shader_feature _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON
+            //#pragma shader_feature _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON
+            //#pragma shader_feature _ _MASEMAP
             
             #pragma vertex SimpleLitVert
             #pragma fragment SimpleLitFrag
 
-            #define _RIM 0
-            #define _SSS 0
-            #define _NORMALMAP 0
+            //#define _RIM 0
+            //#define _SSS 0
+            //#define _NORMALMAP 0
+            #define _WIND 0
 
             #include "SceneSimpleLitPass.hlsl"
             ENDHLSL

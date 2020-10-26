@@ -17,6 +17,7 @@ half _Transparent;
 half _Cutoff;
 
 bool _NormalMapDXGLSwitch;
+half _WindIntensity;
 CBUFFER_END
 
 TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
@@ -31,8 +32,11 @@ half4 sampleBaseMap(float2 uv)
 
 half4 sampleMAESMap(float2 uv)
 {
-    half4 map = SAMPLE_TEXTURE2D(_MAESMap, sampler_MAESMap, uv);
-    map.r = LerpWhiteTo(map.g, _AOStrength);
+    half4 map = 1;
+    #if _MAESMAP
+        map = SAMPLE_TEXTURE2D(_MAESMap, sampler_MAESMap, uv);
+        map.a = LerpWhiteTo(map.a, _AOStrength);
+    #endif
 
     return map;
 }

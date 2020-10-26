@@ -48,5 +48,15 @@ real SoftEdge(real near, real far, real4 positionNDC)
     return fade;
 }
 
+half4 g_WindParam; //xy:direction z:speed w:wave scale
+half2 WindAnimation(half3 positionWS)
+{
+    float2 val = float2(_Time.y * g_WindParam.z + positionWS.xz * g_WindParam.w);
+    val = val % TWO_PI;
+    half2 waveXZ = sin(val);
+    waveXZ *= g_WindParam.xy;
+    return waveXZ;
+}
+
 
 #endif

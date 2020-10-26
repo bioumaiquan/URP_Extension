@@ -14,15 +14,30 @@
 #define OUTPUT_GI_SH(normalWS, OUT) OUT.xyz = SampleSH(normalWS)
 #endif
 
+#if _CHARACTER_IN_UI
+TEXTURECUBE(_CharacterEnvironmentCube);
+SAMPLER(sampler_CharacterEnvironmentCube);
+half4 _CharacterEnvironmentCube_HDR;
+half4 _CharacterEnvironmentColor; // a : cube mipmap count
+#endif
+
+
 
 half3 SampleEnvironment (Surface surfaceWS, BRDF brdf) 
 {
     half3 uvw = reflect(-surfaceWS.viewDirection, surfaceWS.normal);
-    half lod = PerceptualRoughnessToMipmapLevel(brdf.perceptualRoughness);
-    half4 baseEnv = SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, uvw, lod);
-    half4 env = baseEnv;
+    
+    #if _CHARACTER_IN_UI
+        half lod = PerceptualRoughnessToMipmapLevel(brdf.perceptualRoughness, (uint)_CharacterEnvironmentColor.a);
+        half4 environment = SAMPLE_TEXTURECUBE_LOD(_CharacterEnvironmentCube, sampler_CharacterEnvironmentCube, uvw, lod);
+        half3 color = DecodeHDREnvironment(environment, _CharacterEnvironmentCube_HDR);
+    #else
+        half lod = PerceptualRoughnessToMipmapLevel(brdf.perceptualRoughness);
+        half4 environment = SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, uvw, lod);
+        half3 color = DecodeHDREnvironment(environment, unity_SpecCube0_HDR);
+    #endif
 
-    return DecodeHDREnvironment(env, unity_SpecCube0_HDR);
+    return color;
 }
 
 half4 SampleShadowMask(half2 lightmapUV)
@@ -64,17 +79,21 @@ half3 SampleLightmap(float2 lightmapUV, half3 normalWS)
 // Samples SH L0, L1 and L2 terms
 half3 SampleSH(half3 normalWS)
 {
-    // LPPV is not supported in Ligthweight Pipeline
-    real4 SHCoefficients[7];
-    SHCoefficients[0] = unity_SHAr;
-    SHCoefficients[1] = unity_SHAg;
-    SHCoefficients[2] = unity_SHAb;
-    SHCoefficients[3] = unity_SHBr;
-    SHCoefficients[4] = unity_SHBg;
-    SHCoefficients[5] = unity_SHBb;
-    SHCoefficients[6] = unity_SHC;
+    #if _CHARACTER_IN_UI
+        return _CharacterEnvironmentColor.rgb;
+    #else
+        // LPPV is not supported in Ligthweight Pipeline
+        real4 SHCoefficients[7];
+        SHCoefficients[0] = unity_SHAr;
+        SHCoefficients[1] = unity_SHAg;
+        SHCoefficients[2] = unity_SHAb;
+        SHCoefficients[3] = unity_SHBr;
+        SHCoefficients[4] = unity_SHBg;
+        SHCoefficients[5] = unity_SHBb;
+        SHCoefficients[6] = unity_SHC;
 
-    return max(half3(0, 0, 0), SampleSH9(SHCoefficients, normalWS));
+        return max(half3(0, 0, 0), SampleSH9(SHCoefficients, normalWS));
+    #endif
 }
 
 
@@ -90,7 +109,11 @@ GI GetSimpleGI (half2 lightMapUV, half3 vertexSH, Surface surfaceWS)
 {
     GI gi;
     gi.diffuse = SampleLightmap(lightMapUV, surfaceWS.normal) + vertexSH;
-    gi.specular = _GlossyEnvironmentColor.rgb;
+    #if _CHARACTER_IN_UI
+        gi.specular = _CharacterEnvironmentColor.rgb;
+    #else
+        gi.specular = _GlossyEnvironmentColor.rgb;
+    #endif
     gi.shadowMask = 1;
     #if SHADOWS_SHADOWMASK && LIGHTMAP_ON
         gi.shadowMask = SampleShadowMask(lightMapUV).r;

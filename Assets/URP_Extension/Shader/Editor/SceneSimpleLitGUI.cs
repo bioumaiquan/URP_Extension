@@ -25,6 +25,7 @@ public class SceneSimpleLitGUI : ShaderGUI
         public static readonly string[] cullNames = { "正面显示", "背面显示", "双面显示" };
         public static GUIContent baseMapText = new GUIContent("颜色贴图");
         public static GUIContent normalMapText = new GUIContent("法线贴图");
+        public static GUIContent maseMapText = new GUIContent("自发光(R) AO(A)");
     }
 
     MaterialProperty blendMode = null;
@@ -45,6 +46,8 @@ public class SceneSimpleLitGUI : ShaderGUI
     MaterialProperty sssColor = null;
     MaterialProperty rimColor = null;
     MaterialProperty rimPower = null;
+    MaterialProperty windToggle = null;
+    MaterialProperty windIntensity = null;
     MaterialEditor m_MaterialEditor;
 
     public void FindProperties(MaterialProperty[] props)
@@ -66,6 +69,8 @@ public class SceneSimpleLitGUI : ShaderGUI
         sssColor = FindProperty("_SSSColor", props);
         rimColor = FindProperty("_RimColor", props);
         rimPower = FindProperty("_RimPower", props);
+        windToggle = FindProperty("_WindToggle", props);
+        windIntensity = FindProperty("_WindIntensity", props);
     }
 
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
@@ -178,12 +183,14 @@ public class SceneSimpleLitGUI : ShaderGUI
         m_MaterialEditor.TexturePropertySingleLine(Styles.normalMapText, normalMap, normalScale);
         if (normalMap.textureValue != null)
             m_MaterialEditor.ShaderProperty(normalMapSwitch, "DX/OpenGL切换", indent);
+        m_MaterialEditor.TexturePropertySingleLine(Styles.maseMapText, maesMap);
 
         { // for bake
             material.SetTexture("_MainTex", baseMap.textureValue);
             material.SetColor("_Color", mainColor);
         }
 
+        material.SetMaterialKeyword("_MAESMAP", maesMap.textureValue != null);
         material.SetMaterialKeyword("_NORMALMAP", normalMap.textureValue != null);
 
         EditorGUILayout.Space();
@@ -204,6 +211,10 @@ public class SceneSimpleLitGUI : ShaderGUI
         {
             m_MaterialEditor.ShaderProperty(sssColor, "SSS颜色", indent);
         }
+
+        EditorGUILayout.Space(10);
+        m_MaterialEditor.ShaderProperty(windToggle, "风开关");
+        m_MaterialEditor.ShaderProperty(windIntensity, "强度", indent);
 
         EditorGUILayout.Space(10);
         m_MaterialEditor.ShaderProperty(this.rimColor, "边缘光颜色");

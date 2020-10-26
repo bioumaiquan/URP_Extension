@@ -13,6 +13,9 @@ struct Attributes
     #if _ALPHATEST_ON
     float2 texcoord     : TEXCOORD0;
     #endif
+    #if _WIND
+    real4 color : COLOR;
+    #endif
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
@@ -27,6 +30,9 @@ struct Varyings
 float4 GetShadowPositionHClip(Attributes input)
 {
     float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+    #if _WIND
+        positionWS.xz += WindAnimation(positionWS) * input.color.a * _WindIntensity;
+    #endif
     float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
 
     float4 positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, _LightDirection));

@@ -3,8 +3,9 @@
 
 struct Attributes
 {
-    float4 position     : POSITION;
+    float4 positionOS     : POSITION;
     float2 texcoord     : TEXCOORD0;
+    real4 color     : COLOR;
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
@@ -27,7 +28,11 @@ Varyings DepthOnlyVertex(Attributes input)
     #if _ALPHATEST_ON
     output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
     #endif
-    output.positionCS = TransformObjectToHClip(input.position.xyz);
+    float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+    #if _WIND
+        positionWS.xz += WindAnimation(positionWS) * input.color.r * _WindIntensity;
+    #endif
+    output.positionCS = TransformWorldToHClip(positionWS);
     return output;
 }
 

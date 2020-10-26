@@ -52,9 +52,9 @@ half3 SGDiffuseLighting(half3 normalWS, half3 lightDirWS, half3 SSSColor)
 
     
     //filmic tonemapping
-    // diffuse *= diffuse;
-    // half3 x = max(0, (diffuse - 0.004));
-    // diffuse = (x * (6.2 * x + 0.5)) / (x * (6.2 * x + 1.7) + 0.06);
+    //diffuse *= diffuse;
+    //half3 x = max(0, (diffuse - 0.004));
+    //diffuse = (x * (6.2 * x + 0.5)) / (x * (6.2 * x + 1.7) + 0.06);
     
     return diffuse;
 }
@@ -122,7 +122,10 @@ half3 IndirectBRDF(Surface surface, BRDF brdf, half3 diffuse, half3 specular)
     half3 reflection = specular * lerp(brdf.specular, brdf.fresnel, fresnelStrength);
     reflection /= brdf.roughness2 + 1.0;
 
-    return diffuse * brdf.diffuse + reflection;
+    half3 upDir = half3(0, 1, 0);
+    half NdotU = dot(surface.normal, upDir) * 0.5 + 0.5;
+
+    return diffuse * brdf.diffuse + reflection * NdotU;
 }
 
 half3 RimColor(half3 lightDirWS, half3 normalWS, half3 viewDirWS, half4 rimColor)
@@ -136,7 +139,7 @@ half3 RimColor(half3 lightDirWS, half3 normalWS, half3 viewDirWS, half4 rimColor
 }
 
 //hair
-half3 ShiftTangent(half3 tangent, half3 normal, half shift)
+half3 ShiftT(half3 tangent, half3 normal, half shift)
 {
 	return tangent + normal * shift;
 }
@@ -157,11 +160,11 @@ half3 DirectHairSpecular(Light light, half3 diffuse, Surface surface, half3 tang
                         half2 intensity, half subSmoothness, bool isMainLight = true)
 {
     half3 lambert = IncomingLight(surface, light, isMainLight);
-    half3 shiftTangent0 = ShiftTangent(tangent, surface.normal, shift.x);
+    half3 shiftTangent0 = ShiftT(tangent, surface.normal, shift.x);
     half3 spec0 = KajiyaKaySpec(shiftTangent0, surface.viewDirection, light.direction, surface.smoothness) * intensity.x;
     half3 spec1 = 0;
 #if _DOUBLE_SPECULAR
-    half3 shiftTangent1 = ShiftTangent(tangent, surface.normal, shift.y);
+    half3 shiftTangent1 = ShiftT(tangent, surface.normal, shift.y);
     spec1 = KajiyaKaySpec(shiftTangent1, surface.viewDirection, light.direction, subSmoothness) * intensity.y;
 #endif
 
@@ -226,9 +229,31 @@ half3 LightingLambert(Surface surface, VertexData vertexData, GI gi, half4 rimCo
     return color;
 }
 
-half3 DirectSkinSpecular(Surface surface, BRDF brdf, Light light, half3 SSSNormal, bool isMainLight = true)
+
+half3 LightingCharacterCommon(BRDF brdf, Surface surface, VertexData vertexData, GI gi, half4 rimColor = half4(0,0,0,0))
 {
-    return 1;
+    half3 color = IndirectBRDF(surface, brdf, gi.diffuse, gi.specular);
+    color *= surface.occlusion; 
+
+    Light mainLight = GetMainLight(vertexData.shadowCoord, gi.shadowMask);
+    color += DirectBRDF(surface, brdf, mainLight, true);
+
+#if _RIM
+    color += RimColor(mainLight.direction, surface.normal, surface.viewDirection, rimColor);
+#endif
+
+#ifdef _ADDITIONAL_LIGHTS
+    uint pixelLightCount = GetAdditionalLightsCount();
+    for (uint lightIndex = 0u; lightIndex < pixelLightCount; ++lightIndex)
+    {
+        Light light = GetAdditionalLight(lightIndex, surface.position);
+        color += DirectBRDF(surface, brdf, light, true);
+    }
+#elif _ADDITIONAL_LIGHTS_VERTEX
+    color += vertexData.lighting * brdf.diffuse;
+#endif
+
+    return color;
 }
 
 half3 LightingSkin(BRDF brdf, Surface surface, VertexData vertexData, GI gi, half4 rimColor)
@@ -247,7 +272,7 @@ half3 LightingSkin(BRDF brdf, Surface surface, VertexData vertexData, GI gi, hal
     for (uint lightIndex = 0u; lightIndex < pixelLightCount; ++lightIndex)
     {
         Light light = GetAdditionalLight(lightIndex, surface.position);
-        color += DirectBRDF(surface, brdf, light, false);
+        color += DirectBRDF(surface, brdf, light, true);
     }
 #elif _ADDITIONAL_LIGHTS_VERTEX
     color += vertexData.lighting * brdf.diffuse;
@@ -275,7 +300,7 @@ half3 LightingHair(BRDF brdf, Surface surface, GI gi, VertexData vertexData,
     for (uint lightIndex = 0u; lightIndex < pixelLightCount; ++lightIndex)
     {
         Light light = GetAdditionalLight(lightIndex, surface.position);
-        color += DirectHairSpecular(light, brdf.diffuse, surface, tangent, shift, intensity, subSmoothness, false);
+        color += DirectHairSpecular(light, brdf.diffuse, surface, tangent, shift, intensity, subSmoothness, true);
     }
 #elif _ADDITIONAL_LIGHTS_VERTEX
     color += vertexData.lighting * surface.albedo.rgb;

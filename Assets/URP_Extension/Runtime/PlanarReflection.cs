@@ -142,6 +142,10 @@ public class PlanarReflection : MonoBehaviour
         {
             return;
         }
+        if (cam.orthographic == true)
+        {
+            return;
+        }
 
         isRendering = true;
         position = transform.position;
@@ -199,9 +203,8 @@ public class PlanarReflection : MonoBehaviour
         reflectionCamera.transform.position = reflectionMatrix.MultiplyPoint(oldPosition);
         eulerAngles = cam.transform.eulerAngles;
         reflectionCamera.transform.eulerAngles = new Vector3(0, eulerAngles.y, eulerAngles.z);
-
-        if(!Application.isPlaying)
-            UniversalRenderPipeline.RenderSingleCamera(context, reflectionCamera);
+       
+        UniversalRenderPipeline.RenderSingleCamera(context, reflectionCamera);
 
         reflectionCamera.transform.position = oldPosition;
         GL.invertCulling = false;
@@ -229,7 +232,7 @@ public class PlanarReflection : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-#region 编辑器面板
+    #region 编辑器面板
     [CustomEditor(typeof(PlanarReflection))]
     public class PlanarReflectionEditor : Editor
     {
@@ -259,6 +262,6 @@ public class PlanarReflection : MonoBehaviour
         }
 
     }
-#endregion
+    #endregion
 #endif
 }

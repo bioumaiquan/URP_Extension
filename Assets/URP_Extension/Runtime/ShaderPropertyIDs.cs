@@ -19,6 +19,7 @@ namespace BioumRP
             internal static readonly int SkyColors3 = Shader.PropertyToID("_SkyColors3");
             internal static readonly int reflectionTexture = Shader.PropertyToID("_ReflectionTex");
             internal static readonly int reflectionTransparent = Shader.PropertyToID("_ReflectionTransparent");
+            internal static readonly int noiseParam = Shader.PropertyToID("g_NoiseParam");
         }
 
         public class Effect
@@ -28,7 +29,8 @@ namespace BioumRP
 
         public class Character
         {
-
+            internal static readonly int CharacterEnvironmentCube = Shader.PropertyToID("_CharacterEnvironmentCube");
+            internal static readonly int CharacterEnvironmentColor = Shader.PropertyToID("_CharacterEnvironmentColor");
         }
     }
 }

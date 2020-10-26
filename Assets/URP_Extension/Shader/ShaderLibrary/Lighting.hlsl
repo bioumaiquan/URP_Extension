@@ -6,6 +6,22 @@
 #include "BRDF.hlsl"
 #include "GI.hlsl"
 
+//球坐标转归一化笛卡尔坐标
+//horizontal: [0,360]  vertical: [0,180]
+half3 SphereCoordToCartesianCoord(half horizontal, half vertical)
+{   
+    half2 radians = half2(horizontal, vertical) * 0.0174532924; //角度转弧度
+    half2 sinResult, cosResult;
+    sincos(radians, sinResult, cosResult);
+
+    half x = sinResult.y * cosResult.x;
+    half z = sinResult.y * sinResult.x;
+    half y = cosResult.y;
+
+    return half3(x, y, z);
+}
+
+
 // SSS term
 struct FSphericalGausian
 {
@@ -209,6 +225,7 @@ half3 LightingLambert(Surface surface, VertexData vertexData, GI gi, half4 rimCo
     color *= surface.occlusion; 
 
     Light mainLight = GetMainLight(vertexData.shadowCoord, gi.shadowMask);
+
     color += IncomingLight(surface, mainLight, true) * surface.albedo.rgb;
 
 #if _RIM

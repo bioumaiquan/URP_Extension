@@ -52,6 +52,12 @@ public class SceneCommonGUI : ShaderGUI
     MaterialProperty sssColor = null;
     MaterialProperty rimColor = null;
     MaterialProperty rimPower = null;
+    MaterialProperty windToggle = null;
+    MaterialProperty windScale = null;
+    MaterialProperty windSpeed = null;
+    MaterialProperty windDirection = null;
+    MaterialProperty windIntensity = null;
+    MaterialProperty windParam = null;
     MaterialEditor m_MaterialEditor;
 
     public void FindProperties(MaterialProperty[] props)
@@ -78,6 +84,12 @@ public class SceneCommonGUI : ShaderGUI
         sssColor = FindProperty("_SSSColor", props);
         rimColor = FindProperty("_RimColor", props);
         rimPower = FindProperty("_RimPower", props);
+        windToggle = FindProperty("_WindToggle", props);
+        windScale = FindProperty("_WindScale", props);
+        windSpeed = FindProperty("_WindSpeed", props);
+        windDirection = FindProperty("_WindDirection", props);
+        windIntensity = FindProperty("_WindIntensity", props);
+        windParam = FindProperty("_WindParam", props);
     }
 
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
@@ -236,6 +248,20 @@ public class SceneCommonGUI : ShaderGUI
         if (sssToggle.floatValue != 0)
         {
             m_MaterialEditor.ShaderProperty(sssColor, "SSS颜色", indent);
+        }
+
+        EditorGUILayout.Space(10);
+        m_MaterialEditor.ShaderProperty(windToggle, "风开关");
+        if (windToggle.floatValue != 0)
+        {
+            m_MaterialEditor.ShaderProperty(windScale, "缩放", indent);
+            m_MaterialEditor.ShaderProperty(windSpeed, "速度", indent);
+            m_MaterialEditor.ShaderProperty(windDirection, "风向", indent);
+            m_MaterialEditor.ShaderProperty(windIntensity, "强度", indent);
+            float radian = windDirection.floatValue * Mathf.Deg2Rad;
+            float x = Mathf.Cos(radian) * windIntensity.floatValue;
+            float y = Mathf.Sin(radian) * windIntensity.floatValue;
+            windParam.vectorValue = new Vector4(x, y, windScale.floatValue, windSpeed.floatValue);
         }
 
         EditorGUILayout.Space(10);

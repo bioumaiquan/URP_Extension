@@ -10,6 +10,7 @@ struct Attributes
     real4 tangentOS: TANGENT;
     real2 texcoord: TEXCOORD0;
     real2 lightmapUV: TEXCOORD1;
+    real4 color : COLOR;
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
@@ -45,6 +46,13 @@ Varyings CommonLitVert(Attributes input)
     UNITY_TRANSFER_INSTANCE_ID(input, output);
     
     output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
+#if _WIND
+    float2 direction = _WindParam.xy;
+    float scale = _WindParam.z;
+    float speed = _WindParam.w;
+    float2 wave = PlantsAnimationNoise(output.positionWS, direction, scale, speed);
+    output.positionWS.xz += wave * input.color.r;
+#endif
     output.positionCS = TransformWorldToHClip(output.positionWS);
     
     half3 viewDirWS = _WorldSpaceCameraPos - output.positionWS;

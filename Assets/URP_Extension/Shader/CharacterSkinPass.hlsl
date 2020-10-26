@@ -103,15 +103,15 @@ half4 CommonLitFrag(Varyings input): SV_TARGET
     surface.viewDirection = SafeNormalize(viewDirWS);
     
     half4 maes = sampleMAESMap(input.uv.xy);
-    surface.metallic = maes.r;
+    surface.metallic = 0;
     surface.occlusion = maes.g;
     surface.smoothness = maes.a;
-    surface.specularTint = _SpecularTint;
+    surface.specularTint = 0;
     surface.position = input.positionWS;
     surface.fresnelStrength = GetFresnel();
-    surface.SSSColor = GetSSSColor();
+    surface.SSSColor = GetSSSColor() * maes.r;
 
-    half3 emissive = maes.b * _EmiColor.rgb;
+
     half4 rimColor = GetRimColor();
 
     
@@ -121,12 +121,11 @@ half4 CommonLitFrag(Varyings input): SV_TARGET
     vertexData.shadowCoord = input.shadowCoord;
 #endif
     
-    half alpha = GetAlpha() * surface.albedo.a;
+    half alpha = 1;
     BRDF brdf = GetBRDF(surface, alpha);
     GI gi = GET_GI(input.lightmapUV, input.vertexSH, surface, brdf);
     
     half3 color = LightingCharacterCommon(brdf, surface, vertexData, gi, rimColor);
-    color += emissive;
 
     color = MixFog(color, input.VertexLightAndFog.w);
     

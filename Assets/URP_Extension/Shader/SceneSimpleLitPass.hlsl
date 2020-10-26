@@ -46,9 +46,13 @@ Varyings SimpleLitVert(Attributes input)
     UNITY_TRANSFER_INSTANCE_ID(input, output);
     
     output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
-    #if _WIND
-        output.positionWS.xz += WindAnimation(output.positionWS) * input.color.r * _WindIntensity;
-    #endif
+#if _WIND
+    float2 direction = _WindParam.xy;
+    float scale = _WindParam.z;
+    float speed = _WindParam.w;
+    float2 wave = PlantsAnimationNoise(output.positionWS, direction, scale, speed);
+    output.positionWS.xz += wave * input.color.r;
+#endif
     output.positionCS = TransformWorldToHClip(output.positionWS);
     
     half3 viewDirWS = _WorldSpaceCameraPos - output.positionWS;

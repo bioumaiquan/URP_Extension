@@ -31,7 +31,11 @@ float4 GetShadowPositionHClip(Attributes input)
 {
     float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
     #if _WIND
-        positionWS.xz += WindAnimation(positionWS) * input.color.a * _WindIntensity;
+        float2 direction = _WindParam.xy;
+        float scale = _WindParam.z;
+        float speed = _WindParam.w;
+        float2 wave = PlantsAnimationNoise(positionWS, direction, scale, speed);
+        positionWS.xz += wave * input.color.r;
     #endif
     float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
 

@@ -8,20 +8,12 @@ CBUFFER_START(UnityPerMaterial)
 half4 _BaseMap_ST;
 half4 _BaseColor;
 half4 _SSSColor;
-half4 _EmiColor;
 half4 _RimColor;
+half4 _SmoothCurve;
 
 half _NormalScale;
-
-half _SmoothnessMin;
-half _SmoothnessMax;
-half _Metallic;
 half _AOStrength;
-
 half _FresnelStrength;
-half _SpecularTint;
-half _Transparent;
-half _Cutoff;
 
 bool _NormalMapDXGLSwitch;
 CBUFFER_END
@@ -39,9 +31,10 @@ half4 sampleBaseMap(float2 uv)
 half4 sampleMAESMap(float2 uv)
 {
     half4 map = SAMPLE_TEXTURE2D(_MAESMap, sampler_MAESMap, uv);
-    map.r *= _Metallic;
+
     map.g = LerpWhiteTo(map.g, _AOStrength);
-    map.a = lerp(_SmoothnessMin, _SmoothnessMax, map.a);
+    map.r = lerp(_SmoothCurve.z, _SmoothCurve.w, map.r);
+    map.a = lerp(_SmoothCurve.x, _SmoothCurve.y, map.a);
 
     return map;
 }
@@ -58,16 +51,6 @@ half GetFresnel()
     return _FresnelStrength;
 }
 
-half GetTransparent()
-{
-    return _Transparent;
-}
-
-half GetCutoff()
-{
-    return _Cutoff;
-}
-
 half3 GetSSSColor()
 {
     return _SSSColor.rgb;
@@ -76,11 +59,6 @@ half3 GetSSSColor()
 half4 GetRimColor()
 {
     return _RimColor;  //alpha = power
-}
-
-half GetAlpha()
-{
-    return _Transparent;
 }
 
 #endif //BIOUM_COMMON_INPUT_INCLUDE

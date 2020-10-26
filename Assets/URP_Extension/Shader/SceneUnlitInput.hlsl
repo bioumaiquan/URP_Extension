@@ -2,6 +2,7 @@
 #define BIOUM_UNLIT_INPUT_INCLUDE
 
 #include "../Shader/ShaderLibrary/Common.hlsl"
+#include "../Shader/ShaderLibrary/Noise.hlsl"
 
 CBUFFER_START(UnityPerMaterial)
 half4 _BaseMap_ST;
@@ -9,6 +10,7 @@ half4 _BaseColor;
 half4 _RimColor;
 half _Transparent;
 half _Cutoff;
+half4 _WindParam; //xy:direction z:scale w:speed
 CBUFFER_END
 
 TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);

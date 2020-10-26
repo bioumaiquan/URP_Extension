@@ -13,7 +13,7 @@
     HLSLINCLUDE
         #include "../Shader/ShaderLibrary/Common.hlsl"
         #include "../Shader/ShaderLibrary/Surface.hlsl"
-        #include "../Shader/ShaderLibrary/SimplexNoise3D.hlsl"
+        #include "../Shader/ShaderLibrary/Noise.hlsl"
 
         CBUFFER_START(UnityPerMaterial)
         half4 _BaseColor;

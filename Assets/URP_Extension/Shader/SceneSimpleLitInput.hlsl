@@ -3,6 +3,8 @@
 
 #include "../Shader/ShaderLibrary/Common.hlsl"
 #include "../Shader/ShaderLibrary/Surface.hlsl"
+#include "../Shader/ShaderLibrary/Noise.hlsl"
+
 
 CBUFFER_START(UnityPerMaterial)
 half4 _BaseMap_ST;
@@ -17,7 +19,7 @@ half _Transparent;
 half _Cutoff;
 
 bool _NormalMapDXGLSwitch;
-half _WindIntensity;
+half4 _WindParam; //xy:direction z:scale w:speed
 CBUFFER_END
 
 TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);

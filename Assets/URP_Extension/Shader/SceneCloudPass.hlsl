@@ -24,7 +24,7 @@ real3 displace(real3 p)
 {
     real3 q = normalize(cross(p, real3(0, 1, 0)) + real3(0, 1e-5, 0));
     real3 r = cross(p, q);
-    real3 n = snoise_grad(p * g_NoiseParam.y + g_NoiseParam.z).xyz * g_NoiseParam.x;
+    real3 n = snoise3D_grad(p * g_NoiseParam.y + g_NoiseParam.z).xyz * g_NoiseParam.x;
     return p * (1 + n.x) + q * n.y + r * n.z;
 }
 #endif

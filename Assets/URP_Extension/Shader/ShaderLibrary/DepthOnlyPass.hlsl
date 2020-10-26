@@ -30,7 +30,11 @@ Varyings DepthOnlyVertex(Attributes input)
     #endif
     float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
     #if _WIND
-        positionWS.xz += WindAnimation(positionWS) * input.color.r * _WindIntensity;
+        float2 direction = _WindParam.xy;
+        float scale = _WindParam.z;
+        float speed = _WindParam.w;
+        float2 wave = PlantsAnimationNoise(positionWS, direction, scale, speed);
+        positionWS.xz += wave * input.color.r;
     #endif
     output.positionCS = TransformWorldToHClip(positionWS);
     return output;

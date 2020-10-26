@@ -9,6 +9,13 @@
         _Cutoff ("透贴强度", range(0,1)) = 0.5
         _Transparent ("透明度", range(0,1)) = 1
 
+        [Toggle(_WIND)] _WindToggle ("风开关", float) = 0
+        _WindScale ("缩放", float) = 0.2
+        _WindSpeed ("速度", float) = 0.5
+        _WindDirection ("风向", range(0,90)) = 40
+        _WindIntensity ("强度", range(0, 1)) = 0.2
+        _WindParam ("风参数", vector) = (0.2, 0, 0.2, 0.5)
+
         [HideInInspector] _BlendMode ("_BlendMode", float) = 0
         [HideInInspector] _CullMode ("_CullMode", float) = 0
         [HideInInspector] _SrcBlend ("_SrcBlend", float) = 1
@@ -41,6 +48,7 @@
             #pragma multi_compile_fog
             #pragma shader_feature _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON
             #pragma shader_feature _ _RIM
+            #pragma shader_feature _ _WIND
             
             #pragma vertex UnlitVert
             #pragma fragment UnlitFrag
@@ -66,6 +74,7 @@
             #pragma fragment DepthOnlyFragment
 
             #pragma shader_feature _ALPHATEST_ON
+            #pragma shader_feature _ _WIND
 
             #include "../Shader/ShaderLibrary/DepthOnlyPass.hlsl"
             ENDHLSL
@@ -87,6 +96,7 @@
             //#pragma multi_compile_instancing
 
             #pragma shader_feature _ _ALPHATEST_ON
+            #pragma shader_feature _ _WIND
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
 

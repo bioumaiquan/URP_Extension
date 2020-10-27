@@ -15,6 +15,8 @@ simple lit
 
 vertex animation based on simplex noise
 
+soble outline render feature
+
 water with planar reflection
 
 

@@ -9,7 +9,7 @@ struct Surface
     half3 viewDirection;
 
     half  smoothness;
-    half3 position;
+    float3 position;
 
     half  occlusion;
     half3 normal;
@@ -22,7 +22,7 @@ struct Surface
 
 struct VertexData
 {
-    half4 shadowCoord;
+    float4 shadowCoord;
     half3 lighting;
     half3 color;
 };

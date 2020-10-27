@@ -5,7 +5,7 @@
 
 struct Attributes
 {
-    real4 positionOS: POSITION;
+    float3 positionOS: POSITION;
     real3 normalOS: NORMAL;
     real4 tangentOS: TANGENT;
     real2 texcoord: TEXCOORD0;
@@ -16,10 +16,10 @@ struct Attributes
 
 struct Varyings
 {
-    real4 positionCS: SV_POSITION;
+    float4 positionCS: SV_POSITION;
     real4 uv: TEXCOORD0;
     DECLARE_GI_DATA(lightmapUV, vertexSH, 1);
-    real3 positionWS: TEXCOORD2;
+    float3 positionWS: TEXCOORD2;
     
 #if _NORMALMAP
     real4 tangentWS: TEXCOORD4;    // xyz: tangent, w: viewDir.x

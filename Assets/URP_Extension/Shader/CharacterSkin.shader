@@ -28,7 +28,7 @@
     SubShader
     {
         HLSLINCLUDE
-            #include "CharacterCommonInput.hlsl"
+            #include "CharacterSkinInput.hlsl"
         ENDHLSL
         
         LOD 300

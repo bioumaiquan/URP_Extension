@@ -15,9 +15,11 @@ struct BRDF
 };
 
 #define MIN_REFLECTIVITY 0.04
+#define ONEMINUS_MIN_REFLECTIVITY 0.96
+
 half OneMinusReflectivity(half metallic) 
 {
-    half range = 1.0 - MIN_REFLECTIVITY;
+    half range = ONEMINUS_MIN_REFLECTIVITY;
     return range - metallic * range;
 }
 
@@ -39,6 +41,28 @@ BRDF GetBRDF(Surface surface, inout half alpha)
     brdf.roughness2 = Square(brdf.roughness);
 
     brdf.fresnel = saturate(surface.smoothness + reflectivity);
+
+    brdf.normalizationTerm = brdf.roughness * 4.0h + 2.0h;
+    brdf.roughness2MinusOne = brdf.roughness2 - 1.0h;
+
+    #if _ALPHAPREMULTIPLY_ON
+        brdf.diffuse *= alpha;
+        alpha = alpha * oneMinusReflectivity + reflectivity;
+    #endif
+
+    return brdf;
+}
+
+
+BRDF GetSimpleBRDF(Surface surface, inout half alpha)
+{
+    BRDF brdf = (BRDF)0;
+
+    brdf.specular = MIN_REFLECTIVITY;
+    brdf.diffuse = surface.albedo.rgb * ONEMINUS_MIN_REFLECTIVITY;
+    brdf.perceptualRoughness = 1 - surface.smoothness; 
+    brdf.roughness = Square(max(0.05, brdf.perceptualRoughness));  // perceptualRoughness^2
+    brdf.roughness2 = Square(brdf.roughness);
 
     brdf.normalizationTerm = brdf.roughness * 4.0h + 2.0h;
     brdf.roughness2MinusOne = brdf.roughness2 - 1.0h;

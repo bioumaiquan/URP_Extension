@@ -48,9 +48,6 @@ struct Varyings
     real4 normalWS: TEXCOORD4;
     real4 positionNDC: TEXCOORD5;
     half4 vColor : COLOR; 
-#if _MAIN_LIGHT_SHADOWS
-    real4 shadowCoord : TEXCOORD6;
-#endif
 };
 
 Varyings WaterLitVert(Attributes input)
@@ -78,10 +75,6 @@ Varyings WaterLitVert(Attributes input)
     range = smoothstep(0, 1, range * input.color.r);
     output.vColor = lerp(_WaterColorNear, _WaterColorFar, range.x);
     output.vColor.a = range.y;
-#endif
-
-#if _MAIN_LIGHT_SHADOWS
-    output.shadowCoord = TransformWorldToShadowCoord(vertexPositions.positionWS);
 #endif
 
     output.positionWSAndFog.w = ComputeFogFactor(output.positionCS.z);
@@ -155,7 +148,7 @@ half4 WaterLitFrag(Varyings input): SV_TARGET
 
     half4 shadowCoord = 0;
 #if _MAIN_LIGHT_SHADOWS
-    shadowCoord = input.shadowCoord;
+    shadowCoord = TransformWorldToShadowCoord(input.positionWSAndFog.xyz);
 #endif 
 
     //lighting

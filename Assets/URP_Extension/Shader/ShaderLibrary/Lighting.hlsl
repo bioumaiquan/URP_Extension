@@ -92,8 +92,9 @@ half3 IncomingLight(Surface surface, Light light, bool isMainLight = true)
     if(isMainLight)
     {
         half3 SG = SGDiffuseLighting(surface.normal, light.direction, surface.SSSColor);
-        half NdotL = saturate(dot(surface.normal, light.direction));
-        shadow = lerp(SG, shadow, NdotL);
+        //half NdotL = saturate(dot(surface.normal, light.direction));
+        //shadow = lerp(SG, shadow, NdotL);
+        shadow = min(SG, shadow);
         color = light.color;
     }
     else

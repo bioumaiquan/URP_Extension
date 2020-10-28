@@ -84,7 +84,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _Metallic: 0
+    - _Metallic: 1
     - _NormalMapDXGLSwitch: 0
     - _NormalScale: 1
     - _OcclusionStrength: 1
@@ -92,7 +92,7 @@ Material:
     - _ReceiveShadows: 1
     - _RimPower: 4
     - _Smoothness: 0.5
-    - _SmoothnessMax: 0.887
+    - _SmoothnessMax: 0.773
     - _SmoothnessMin: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -110,7 +110,7 @@ Material:
     - _ZWrite: 1
     - _sssToggle: 0
     m_Colors:
-    - _BaseColor: {r: 0.6226415, g: 0.6226415, b: 0.6226415, a: 1}
+    - _BaseColor: {r: 1, g: 0.8391433, b: 0.45882356, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmiColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

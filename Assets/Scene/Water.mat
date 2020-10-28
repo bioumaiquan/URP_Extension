@@ -40,8 +40,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalTex:
-        m_Texture: {fileID: 2800000, guid: 419261d5c0235cd4184a59c17f7c2d28, type: 3}
-        m_Scale: {x: 20, y: 20}
+        m_Texture: {fileID: 2800000, guid: 3db3ccd1b0d9d674f947a8e5566dd035, type: 3}
+        m_Scale: {x: 30, y: 30}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
@@ -58,7 +58,7 @@ Material:
     - _Cull: 2
     - _Cutoff: 0.5
     - _DstBlend: 0
-    - _EnvNormalScale: 0.205
+    - _EnvNormalScale: 0.274
     - _EnvironmentReflections: 1
     - _FoamDensity: 33.4
     - _FoamEdgeRange: 2
@@ -69,11 +69,11 @@ Material:
     - _GlossyReflections: 0
     - _MaxThreshold: 0.575
     - _Metallic: 0
-    - _NormalScale: 1.23
+    - _NormalScale: 0.84
     - _OcclusionStrength: 1
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Smoothness: 0.936
+    - _Smoothness: 0.97
     - _SmoothnessTextureChannel: 0
     - _SoftEdgeRange: 0.3
     - _SpecularHighlights: 1

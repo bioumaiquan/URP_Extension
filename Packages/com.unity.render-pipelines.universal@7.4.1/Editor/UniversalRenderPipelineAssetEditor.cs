@@ -1,8 +1,8 @@
-using UnityEngine;
-using UnityEngine.Rendering.Universal;
-using UnityEngine.Rendering;
-using UnityEngine.Scripting.APIUpdating;
 using UnityEditorInternal;
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.Scripting.APIUpdating;
 
 namespace UnityEditor.Rendering.Universal
 {
@@ -49,6 +49,9 @@ namespace UnityEditor.Rendering.Universal
 
             // Shadow settings
             public static GUIContent shadowDistanceText = EditorGUIUtility.TrTextContent("Distance", "Maximum shadow rendering distance.");
+            // Marked by Bioum
+            public static GUIContent shadowFadeText = EditorGUIUtility.TrTextContent("Fade", "Distance fade strength.");
+            // Marked by Bioum
             public static GUIContent shadowCascadesText = EditorGUIUtility.TrTextContent("Cascades", "Number of cascade splits used in for directional shadows");
             public static GUIContent shadowDepthBias = EditorGUIUtility.TrTextContent("Depth Bias", "Controls the distance at which the shadows will be pushed away from the light. Useful for avoiding false self-shadowing artifacts.");
             public static GUIContent shadowNormalBias = EditorGUIUtility.TrTextContent("Normal Bias", "Controls distance at which the shadow casting surfaces will be shrunk along the surface normal. Useful for avoiding false self-shadowing artifacts.");
@@ -83,8 +86,8 @@ namespace UnityEditor.Rendering.Universal
 
             // Dropdown menu options
             public static string[] mainLightOptions = { "Disabled", "Per Pixel" };
-            public static string[] shadowCascadeOptions = {"No Cascades", "Two Cascades", "Four Cascades"};
-            public static string[] opaqueDownsamplingOptions = {"None", "2x (Bilinear)", "4x (Box)", "4x (Bilinear)"};
+            public static string[] shadowCascadeOptions = { "No Cascades", "Two Cascades", "Four Cascades" };
+            public static string[] opaqueDownsamplingOptions = { "None", "2x (Bilinear)", "4x (Box)", "4x (Bilinear)" };
         }
 
         SavedBool m_GeneralSettingsFoldout;
@@ -117,6 +120,9 @@ namespace UnityEditor.Rendering.Universal
         SerializedProperty m_AdditionalLightShadowmapResolutionProp;
 
         SerializedProperty m_ShadowDistanceProp;
+        // Marked by Bioum
+        SerializedProperty m_ShadowFadeProp;
+        // Marked by Bioum
         SerializedProperty m_ShadowCascadesProp;
         SerializedProperty m_ShadowCascade2SplitProp;
         SerializedProperty m_ShadowCascade4SplitProp;
@@ -185,6 +191,9 @@ namespace UnityEditor.Rendering.Universal
             m_AdditionalLightShadowmapResolutionProp = serializedObject.FindProperty("m_AdditionalLightsShadowmapResolution");
 
             m_ShadowDistanceProp = serializedObject.FindProperty("m_ShadowDistance");
+            // Marked by Bioum
+            m_ShadowFadeProp = serializedObject.FindProperty("m_ShadowFade");
+            // Marked by Bioum
             m_ShadowCascadesProp = serializedObject.FindProperty("m_ShadowCascades");
             m_ShadowCascade2SplitProp = serializedObject.FindProperty("m_Cascade2Split");
             m_ShadowCascade4SplitProp = serializedObject.FindProperty("m_Cascade4Split");
@@ -203,7 +212,7 @@ namespace UnityEditor.Rendering.Universal
             m_ColorGradingMode = serializedObject.FindProperty("m_ColorGradingMode");
             m_ColorGradingLutSize = serializedObject.FindProperty("m_ColorGradingLutSize");
 
-            selectedLightRenderingMode = (LightRenderingMode)m_AdditionalLightsRenderingModeProp.intValue;
+            selectedLightRenderingMode = (LightRenderingMode) m_AdditionalLightsRenderingModeProp.intValue;
         }
 
         void DrawGeneralSettings()
@@ -288,16 +297,16 @@ namespace UnityEditor.Rendering.Universal
                 EditorGUILayout.Space();
 
                 // Additional light
-                selectedLightRenderingMode = (LightRenderingMode)EditorGUILayout.EnumPopup(Styles.addditionalLightsRenderingModeText, selectedLightRenderingMode);
-                m_AdditionalLightsRenderingModeProp.intValue = (int)selectedLightRenderingMode;
+                selectedLightRenderingMode = (LightRenderingMode) EditorGUILayout.EnumPopup(Styles.addditionalLightsRenderingModeText, selectedLightRenderingMode);
+                m_AdditionalLightsRenderingModeProp.intValue = (int) selectedLightRenderingMode;
                 EditorGUI.indentLevel++;
 
-                disableGroup = m_AdditionalLightsRenderingModeProp.intValue == (int)LightRenderingMode.Disabled;
+                disableGroup = m_AdditionalLightsRenderingModeProp.intValue == (int) LightRenderingMode.Disabled;
                 EditorGUI.BeginDisabledGroup(disableGroup);
                 m_AdditionalLightsPerObjectLimitProp.intValue = EditorGUILayout.IntSlider(Styles.perObjectLimit, m_AdditionalLightsPerObjectLimitProp.intValue, 0, UniversalRenderPipeline.maxPerObjectLights);
                 EditorGUI.EndDisabledGroup();
 
-                disableGroup |= (m_AdditionalLightsPerObjectLimitProp.intValue == 0 || m_AdditionalLightsRenderingModeProp.intValue != (int)LightRenderingMode.PerPixel);
+                disableGroup |= (m_AdditionalLightsPerObjectLimitProp.intValue == 0 || m_AdditionalLightsRenderingModeProp.intValue != (int) LightRenderingMode.PerPixel);
                 EditorGUI.BeginDisabledGroup(disableGroup);
                 EditorGUILayout.PropertyField(m_AdditionalLightShadowsSupportedProp, Styles.supportsAdditionalShadowsText);
                 EditorGUI.EndDisabledGroup();
@@ -323,9 +332,12 @@ namespace UnityEditor.Rendering.Universal
             {
                 EditorGUI.indentLevel++;
                 m_ShadowDistanceProp.floatValue = Mathf.Max(0.0f, EditorGUILayout.FloatField(Styles.shadowDistanceText, m_ShadowDistanceProp.floatValue));
+                // Marked by Bioum
+                m_ShadowFadeProp.floatValue = EditorGUILayout.Slider(Styles.shadowFadeText, m_ShadowFadeProp.floatValue, 0.0f, 1.0f);
+                // Marked by Bioum
                 CoreEditorUtils.DrawPopup(Styles.shadowCascadesText, m_ShadowCascadesProp, Styles.shadowCascadeOptions);
 
-                ShadowCascadesOption cascades = (ShadowCascadesOption)m_ShadowCascadesProp.intValue;
+                ShadowCascadesOption cascades = (ShadowCascadesOption) m_ShadowCascadesProp.intValue;
                 if (cascades == ShadowCascadesOption.FourCascades)
                     EditorUtils.DrawCascadeSplitGUI<Vector3>(ref m_ShadowCascade4SplitProp);
                 else if (cascades == ShadowCascadesOption.TwoCascades)
@@ -355,7 +367,7 @@ namespace UnityEditor.Rendering.Universal
 #if POST_PROCESSING_STACK_2_0_0_OR_NEWER
                 EditorGUILayout.PropertyField(m_PostProcessingFeatureSet, Styles.postProcessingFeatureSet);
 
-                if (m_PostProcessingFeatureSet.intValue == (int)PostProcessingFeatureSet.PostProcessingV2)
+                if (m_PostProcessingFeatureSet.intValue == (int) PostProcessingFeatureSet.PostProcessingV2)
                 {
                     EditorGUILayout.HelpBox(Styles.postProcessingFeatureSetWarning, MessageType.Warning);
                     ppv2Enabled = true;
@@ -365,14 +377,14 @@ namespace UnityEditor.Rendering.Universal
                 if (!ppv2Enabled)
                 {
                     EditorGUILayout.PropertyField(m_ColorGradingMode, Styles.colorGradingMode);
-                    if (!isHdrOn && m_ColorGradingMode.intValue == (int)ColorGradingMode.HighDynamicRange)
+                    if (!isHdrOn && m_ColorGradingMode.intValue == (int) ColorGradingMode.HighDynamicRange)
                         EditorGUILayout.HelpBox(Styles.colorGradingModeWarning, MessageType.Warning);
-                    else if (isHdrOn && m_ColorGradingMode.intValue == (int)ColorGradingMode.HighDynamicRange)
+                    else if (isHdrOn && m_ColorGradingMode.intValue == (int) ColorGradingMode.HighDynamicRange)
                         EditorGUILayout.HelpBox(Styles.colorGradingModeSpecInfo, MessageType.Info);
 
                     EditorGUILayout.DelayedIntField(m_ColorGradingLutSize, Styles.colorGradingLutSize);
                     m_ColorGradingLutSize.intValue = Mathf.Clamp(m_ColorGradingLutSize.intValue, UniversalRenderPipelineAsset.k_MinLutSize, UniversalRenderPipelineAsset.k_MaxLutSize);
-                    if (isHdrOn && m_ColorGradingMode.intValue == (int)ColorGradingMode.HighDynamicRange && m_ColorGradingLutSize.intValue < 32)
+                    if (isHdrOn && m_ColorGradingMode.intValue == (int) ColorGradingMode.HighDynamicRange && m_ColorGradingLutSize.intValue < 32)
                         EditorGUILayout.HelpBox(Styles.colorGradingLutSizeWarning, MessageType.Warning);
                 }
 
@@ -412,13 +424,13 @@ namespace UnityEditor.Rendering.Universal
 
                 EditorGUI.BeginChangeCheck();
                 EditorGUI.ObjectField(objRect, prop.GetArrayElementAtIndex(index), GUIContent.none);
-                if(EditorGUI.EndChangeCheck())
+                if (EditorGUI.EndChangeCheck())
                     EditorUtility.SetDirty(target);
 
                 Rect defaultButton = new Rect(rect.width - 90, rect.y, 86, EditorGUIUtility.singleLineHeight);
                 var defaultRenderer = m_DefaultRendererProp.intValue;
                 GUI.enabled = index != defaultRenderer;
-                if(GUI.Button(defaultButton, !GUI.enabled ? Styles.rendererDefaultText : Styles.rendererSetDefaultText))
+                if (GUI.Button(defaultButton, !GUI.enabled ? Styles.rendererDefaultText : Styles.rendererSetDefaultText))
                 {
                     m_DefaultRendererProp.intValue = index;
                     EditorUtility.SetDirty(target);
@@ -466,7 +478,7 @@ namespace UnityEditor.Rendering.Universal
             {
                 if (li.serializedProperty.arraySize - 1 != m_DefaultRendererProp.intValue)
                 {
-                    if(li.serializedProperty.GetArrayElementAtIndex(li.serializedProperty.arraySize - 1).objectReferenceValue != null)
+                    if (li.serializedProperty.GetArrayElementAtIndex(li.serializedProperty.arraySize - 1).objectReferenceValue != null)
                         li.serializedProperty.DeleteArrayElementAtIndex(li.serializedProperty.arraySize - 1);
                     li.serializedProperty.arraySize--;
                     li.index = li.count - 1;

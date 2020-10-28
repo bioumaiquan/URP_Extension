@@ -73,10 +73,10 @@ Light GetMainLight()
     return light;
 }
 
-Light GetMainLight(float4 shadowCoord, half shadowMask = 1)
+Light GetMainLight(float3 positionWS, float4 shadowCoord, half shadowMask = 1)
 {
     Light light = GetMainLight();
-    half realtimeShadow = MainLightRealtimeShadow(shadowCoord);
+    half realtimeShadow = MainLightRealtimeShadow(shadowCoord, positionWS);
     #if SHADOWS_SHADOWMASK && LIGHTMAP_ON
         light.shadowAttenuation = min(realtimeShadow, shadowMask);
     #else

@@ -177,6 +177,11 @@ namespace UnityEngine.Rendering.Universal
 
         // Shadows Settings
         [SerializeField] float m_ShadowDistance = 50.0f;
+
+        // Marked by Bioum
+        [SerializeField] float m_ShadowFade = 0.2f;
+        // Marked by Bioum
+
         [SerializeField] ShadowCascadesOption m_ShadowCascades = ShadowCascadesOption.NoCascades;
         [SerializeField] float m_Cascade2Split = 0.25f;
         [SerializeField] Vector3 m_Cascade4Split = new Vector3(0.067f, 0.2f, 0.467f);
@@ -582,6 +587,14 @@ namespace UnityEngine.Rendering.Universal
             get { return m_ShadowDistance; }
             set { m_ShadowDistance = Mathf.Max(0.0f, value); }
         }
+
+        // Marked by Bioum
+        public float shadowFade
+        {
+            get { return m_ShadowFade; }
+            set { m_ShadowFade = Mathf.Max(0.0f, value); }
+        }
+        // Marked by Bioum
 
         public ShadowCascadesOption shadowCascadeOption
         {

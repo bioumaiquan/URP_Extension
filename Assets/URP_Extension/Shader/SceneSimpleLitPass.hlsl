@@ -31,6 +31,10 @@ struct Varyings
 #endif
     
     real4 VertexLightAndFog: TEXCOORD6; // w: fogFactor, xyz: vertex light
+
+#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+    float4 shadowCoord : TEXCOORD7;
+#endif
     
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
@@ -76,6 +80,10 @@ Varyings SimpleLitVert(Attributes input)
     }
 #endif
     output.VertexLightAndFog.w = ComputeFogFactor(output.positionCS.z);
+
+#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+    output.shadowCoord = TransformWorldToShadowCoord(output.positionWS);
+#endif
     
     return output;
 }
@@ -112,8 +120,10 @@ half4 SimpleLitFrag(Varyings input): SV_TARGET
 
     VertexData vertexData = (VertexData)0;
     vertexData.lighting = input.VertexLightAndFog.rgb;
-#if _MAIN_LIGHT_SHADOWS
-    vertexData.shadowCoord = TransformWorldToShadowCoord(input.positionWS);
+#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
+    vertexData.shadowCoord = input.shadowCoord;
+#elif defined(MAIN_LIGHT_CALCULATE_SHADOWS)
+    vertexData.shadowCoord = TransformWorldToShadowCoord(surface.position);
 #endif
     
     half alpha = GetAlpha() * surface.albedo.a;

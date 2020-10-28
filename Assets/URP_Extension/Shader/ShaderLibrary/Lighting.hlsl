@@ -199,7 +199,7 @@ half3 LightingPBR(BRDF brdf, Surface surface, VertexData vertexData, GI gi, half
     half3 color = IndirectBRDF(surface, brdf, gi.diffuse, gi.specular);
     color *= surface.occlusion; 
 
-    Light mainLight = GetMainLight(vertexData.shadowCoord, gi.shadowMask);
+    Light mainLight = GetMainLight(surface.position, vertexData.shadowCoord, gi.shadowMask);
     color += DirectBRDF(surface, brdf, mainLight, true);
 
 #if _RIM
@@ -225,7 +225,7 @@ half3 LightingLambert(Surface surface, VertexData vertexData, GI gi, half4 rimCo
     half3 color = surface.albedo.rgb * gi.diffuse;
     color *= surface.occlusion; 
 
-    Light mainLight = GetMainLight(vertexData.shadowCoord, gi.shadowMask);
+    Light mainLight = GetMainLight(surface.position, vertexData.shadowCoord, gi.shadowMask);
 
     color += IncomingLight(surface, mainLight, true) * surface.albedo.rgb;
 
@@ -253,7 +253,7 @@ half3 LightingCharacterCommon(BRDF brdf, Surface surface, VertexData vertexData,
     half3 color = IndirectBRDF(surface, brdf, gi.diffuse, gi.specular);
     color *= surface.occlusion; 
 
-    Light mainLight = GetMainLight(vertexData.shadowCoord, gi.shadowMask);
+    Light mainLight = GetMainLight(surface.position, vertexData.shadowCoord, gi.shadowMask);
     color += DirectBRDF(surface, brdf, mainLight, true);
 
 #if _RIM
@@ -278,7 +278,7 @@ half3 LightingSkin(BRDF brdf, Surface surface, VertexData vertexData, GI gi, hal
 {
     half3 color = brdf.diffuse * gi.diffuse * surface.occlusion;
 
-    Light mainLight = GetMainLight(vertexData.shadowCoord);
+    Light mainLight = GetMainLight(surface.position, vertexData.shadowCoord);
     color += DirectBRDF(surface, brdf, mainLight, true);
 
 #if _RIM
@@ -306,7 +306,7 @@ half3 LightingHair(BRDF brdf, Surface surface, GI gi, VertexData vertexData,
     half3 color = IndirectBRDF(surface, brdf, gi.diffuse, gi.specular);
     color *= surface.occlusion;
 
-    Light mainLight = GetMainLight(vertexData.shadowCoord);
+    Light mainLight = GetMainLight(surface.position, vertexData.shadowCoord);
     color += DirectHairSpecular(mainLight, brdf.diffuse, surface, tangent, shift, intensity, subSmoothness, true);
 
 #if _RIM

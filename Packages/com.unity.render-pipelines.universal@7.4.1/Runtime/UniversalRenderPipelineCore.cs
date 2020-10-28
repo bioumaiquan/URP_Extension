@@ -178,6 +178,10 @@ namespace UnityEngine.Rendering.Universal
         public int additionalLightsShadowmapHeight;
         public bool supportsSoftShadows;
         public int shadowmapDepthBufferBits;
+        // Marked by Bioum
+        public float shadowDistance;
+        public float shadowFade;
+        // Marked by Bioum
         public List<Vector4> bias;
     }
 

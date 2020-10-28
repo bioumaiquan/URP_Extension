@@ -152,7 +152,7 @@ half4 WaterLitFrag(Varyings input): SV_TARGET
 #endif 
 
     //lighting
-    Light light = GetMainLight(shadowCoord);
+    Light light = GetMainLight(surface.position, shadowCoord);
     half a = 1;
     BRDF brdf = GetBRDF(surface, a);
     half3 specColor = SpecularStrength(surface, brdf, light) * light.color * light.shadowAttenuation;

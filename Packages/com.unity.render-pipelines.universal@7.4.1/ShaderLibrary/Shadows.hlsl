@@ -121,6 +121,10 @@ ShadowSamplingData GetAdditionalLightShadowSamplingData()
 // ShadowParams
 // x: ShadowStrength
 // y: 1.0 if shadow is soft, 0.0 otherwise
+// Marked by Bioum
+// z: 1.0 / shadowDistance
+// w: 1.0 / shadowFade
+// Marked by Bioum
 half4 GetMainLightShadowParams()
 {
     return _MainLightShadowParams;
@@ -245,6 +249,30 @@ half MainLightRealtimeShadow(float4 shadowCoord)
     half4 shadowParams = GetMainLightShadowParams();
     return SampleShadowmap(TEXTURE2D_ARGS(_MainLightShadowmapTexture, sampler_MainLightShadowmapTexture), shadowCoord, shadowSamplingData, shadowParams, false);
 }
+
+// Marked by Bioum
+half ShadowDistanceFade (float distance, float scale, float fade) 
+{
+	return saturate((1.0 - distance * scale) * fade);
+}
+half MainLightRealtimeShadow(float4 shadowCoord, float3 positionWS)
+{
+#if !defined(MAIN_LIGHT_CALCULATE_SHADOWS)
+    return 1.0h;
+#endif
+
+    ShadowSamplingData shadowSamplingData = GetMainLightShadowSamplingData();
+    half4 shadowParams = GetMainLightShadowParams();
+    half shadow = SampleShadowmap(TEXTURE2D_ARGS(_MainLightShadowmapTexture, sampler_MainLightShadowmapTexture), shadowCoord, shadowSamplingData, shadowParams, false);
+
+    float dist = distance(positionWS, _WorldSpaceCameraPos.xyz);
+    half fade = ShadowDistanceFade(dist, shadowParams.z, shadowParams.w);
+
+    shadow = LerpWhiteTo(shadow, fade);
+
+    return shadow;
+}
+// Marked by Bioum
 
 half AdditionalLightRealtimeShadow(int lightIndex, float3 positionWS)
 {

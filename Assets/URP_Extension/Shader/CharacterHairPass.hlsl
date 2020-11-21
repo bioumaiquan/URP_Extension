@@ -3,9 +3,50 @@
 
 #include "../Shader/ShaderLibrary/Lighting.hlsl"
 
+/// z pre pass
+
+struct ZPreAttributes
+{
+    float4 positionOS: POSITION;
+    float2 texcoord : TEXCOORD0;
+};
+
+struct ZPreVaryings
+{
+    float4 positionCS: SV_POSITION;
+    float2 uv : TEXCOORD0;
+};
+
+ZPreVaryings ZPreVert(ZPreAttributes input)
+{
+    ZPreVaryings output = (ZPreVaryings)0;
+    UNITY_SETUP_INSTANCE_ID(input);
+    UNITY_TRANSFER_INSTANCE_ID(input, output);
+    
+    float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+    output.positionCS = TransformWorldToHClip(positionWS);
+    
+    output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
+    
+    return output;
+}
+
+half4 ZPreFrag(ZPreVaryings input): SV_TARGET
+{
+    
+    half4 tex = sampleBaseMap(input.uv.xy);
+    clip(tex.a - _Cutoff);
+    
+    return half4(0,0,0,tex.a);
+}
+
+
+
+/// z pre pass
+
 struct Attributes
 {
-    real4 positionOS: POSITION;
+    float4 positionOS: POSITION;
     real3 normalOS: NORMAL;
     real4 tangentOS: TANGENT;
     real2 texcoord: TEXCOORD0;
@@ -15,10 +56,10 @@ struct Attributes
 
 struct Varyings
 {
-    real4 positionCS: SV_POSITION;
+    float4 positionCS: SV_POSITION;
     real4 uv: TEXCOORD0;
     real3 vertexSH : TEXCOORD1;
-    real3 positionWS: TEXCOORD2;
+    float3 positionWS: TEXCOORD2;
     
     real4 tangentWS: TEXCOORD4;    // xyz: tangent, w: viewDir.x
     real4 bitangentWS: TEXCOORD5;    // xyz: binormal, w: viewDir.y

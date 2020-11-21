@@ -22,7 +22,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Mesh_1_0_1Mat.012
   m_Shader: {fileID: 4800000, guid: 5cc2dd04c1cff53458535a7cdc3b3db9, type: 3}
-  m_ShaderKeywords: _NORMALMAP
+  m_ShaderKeywords: _NORMALMAP _NORMALMAPDXGLSWITCH_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 1
@@ -85,7 +85,8 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Metallic: 0
-    - _NormalScale: 1
+    - _NormalMapDXGLSwitch: 1
+    - _NormalScale: 1.33
     - _OcclusionStrength: 1
     - _QueueOffset: 0
     - _ReceiveShadows: 1

@@ -19,7 +19,7 @@ public class CharacterHairGUI : ShaderGUI
     {
         public static string renderingMode = "混合模式";
         public static string cullingMode = "裁剪模式";
-        public static readonly string[] blendNames = { "不透明", "透贴", };
+        public static readonly string[] blendNames = { "不透明", "透贴",};
         public static readonly string[] cullNames = { "正面显示", "背面显示", "双面显示" };
         public static GUIContent baseMapText = new GUIContent("颜色贴图");
         public static GUIContent normalMapText = new GUIContent("法线贴图");
@@ -144,7 +144,7 @@ public class CharacterHairGUI : ShaderGUI
 
         Color mainColor = Color.white;
 
-        if ((BlendMode) blendMode.floatValue == BlendMode.Cutout)
+        if ((BlendMode) blendMode.floatValue != BlendMode.Opaque)
         {
             m_MaterialEditor.ShaderProperty(cutoutStrength, "透贴强度", indent);
         }

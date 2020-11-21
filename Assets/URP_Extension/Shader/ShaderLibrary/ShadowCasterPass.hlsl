@@ -30,13 +30,13 @@ struct Varyings
 float4 GetShadowPositionHClip(Attributes input)
 {
     float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
-    #if _WIND
-        float2 direction = _WindParam.xy;
-        float scale = _WindParam.z;
-        float speed = _WindParam.w;
-        float2 wave = PlantsAnimationNoise(positionWS, direction, scale, speed);
-        positionWS.xz += wave * input.color.r;
-    #endif
+#if _WIND
+    float2 direction = _WindParam.xy;
+    float scale = _WindParam.z;
+    float speed = _WindParam.w;
+    float2 wave = PlantsAnimationNoise(positionWS, direction, scale, speed);
+    positionWS.xz += wave * input.color.r;
+#endif
     float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
 
     float4 positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, _LightDirection));

@@ -22,14 +22,14 @@ half3 SphereCoordToCartesianCoord(half horizontal, half vertical)
 }
 
 
-// SSS term
+// 球面高斯SSS 
+// https://zhuanlan.zhihu.com/p/139836594
 struct FSphericalGausian
 {
     half3 Axis;
     half3 Sharpness;
     //half3 Amplitude;
 };
-
 half3 DotCosineLobe(FSphericalGausian SG, half3 normalWS)
 {
     half muDotN = dot(SG.Axis, normalWS);
@@ -51,7 +51,6 @@ half3 DotCosineLobe(FSphericalGausian SG, half3 normalWS)
 
     return scale * y + bias;
 }
-
 FSphericalGausian MakeNormalizedSG(half3 lightDirWS, half3 sharpness)
 {
     FSphericalGausian SG;
@@ -60,13 +59,11 @@ FSphericalGausian MakeNormalizedSG(half3 lightDirWS, half3 sharpness)
     //SG.Amplitude = SG.Sharpness / (TWO_PI * (1 - exp(-2 * SG.Sharpness)));
     return SG;
 }
-
 half3 SGDiffuseLighting(half3 normalWS, half3 lightDirWS, half3 SSSColor)
 {
     FSphericalGausian rgbKernel = MakeNormalizedSG(lightDirWS, rcp(max(SSSColor, 0.001)));
     half3 diffuse = DotCosineLobe(rgbKernel, normalWS);
 
-    
     //filmic tonemapping
     //diffuse *= diffuse;
     //half3 x = max(0, (diffuse - 0.004));
@@ -74,8 +71,9 @@ half3 SGDiffuseLighting(half3 normalWS, half3 lightDirWS, half3 SSSColor)
     
     return diffuse;
 }
-
 // SSS term
+
+
 
 half3 Lambert(half3 lightColor, half3 lightDir, half3 normal)
 {
@@ -92,8 +90,6 @@ half3 IncomingLight(Surface surface, Light light, bool isMainLight = true)
     if(isMainLight)
     {
         half3 SG = SGDiffuseLighting(surface.normal, light.direction, surface.SSSColor);
-        //half NdotL = saturate(dot(surface.normal, light.direction));
-        //shadow = lerp(SG, shadow, NdotL);
         shadow = min(SG, shadow);
         color = light.color;
     }
@@ -139,8 +135,9 @@ half3 IndirectBRDF(Surface surface, BRDF brdf, half3 diffuse, half3 specular)
     half3 reflection = specular * lerp(brdf.specular, brdf.fresnel, fresnelStrength);
     reflection /= brdf.roughness2 + 1.0;
 
-    half3 upDir = half3(0, 1, 0);
-    half NdotU = dot(surface.normal, upDir) * 0.5 + 0.5;
+    //half3 upDir = half3(0, 1, 0);
+    //half NdotU = dot(surface.normal, upDir) * 0.5 + 0.5;
+    half NdotU = surface.normal.y * 0.5 + 0.5;
 
     return diffuse * brdf.diffuse + reflection * NdotU;
 }

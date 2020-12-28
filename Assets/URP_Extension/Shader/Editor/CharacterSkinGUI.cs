@@ -102,7 +102,6 @@ public class CharacterSkinGUI : ShaderGUI
         else
         {
             m_MaterialEditor.ShaderProperty(smoothnessMax, "光滑度");
-            m_MaterialEditor.ShaderProperty(curveMax, "SSS强度");
             smoothnessMin.floatValue = 0;
             curveMin.floatValue = 0;
         }
@@ -114,6 +113,7 @@ public class CharacterSkinGUI : ShaderGUI
         if (sssToggle.floatValue != 0)
         {
             m_MaterialEditor.ShaderProperty(sssColor, "SSS颜色", indent);
+            m_MaterialEditor.ShaderProperty(curveMax, "SSS强度", indent);
         }
 
         EditorGUILayout.Space(10);

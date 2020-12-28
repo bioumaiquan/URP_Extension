@@ -30,6 +30,7 @@ public class SceneSimpleLitGUI : ShaderGUI
 
     MaterialProperty blendMode = null;
     MaterialProperty cullMode = null;
+    MaterialProperty ditherClip = null;
 
     MaterialProperty baseMap = null;
     MaterialProperty baseColor = null;
@@ -42,6 +43,7 @@ public class SceneSimpleLitGUI : ShaderGUI
     MaterialProperty transparent = null;
     MaterialProperty transparentZWrite = null;
     MaterialProperty cutoutStrength = null;
+    MaterialProperty ditherCutoff = null;
     MaterialProperty sssToggle = null;
     MaterialProperty sssColor = null;
     MaterialProperty rimColor = null;
@@ -56,6 +58,7 @@ public class SceneSimpleLitGUI : ShaderGUI
 
     public void FindProperties(MaterialProperty[] props)
     {
+        ditherClip = FindProperty("_DitherClip", props);
         blendMode = FindProperty("_BlendMode", props);
         cullMode = FindProperty("_CullMode", props);
         baseMap = FindProperty("_BaseMap", props);
@@ -69,6 +72,7 @@ public class SceneSimpleLitGUI : ShaderGUI
         transparent = FindProperty("_Transparent", props);
         transparentZWrite = FindProperty("_TransparentZWrite", props);
         cutoutStrength = FindProperty("_Cutoff", props);
+        ditherCutoff = FindProperty("_DitherCutoff", props);
         sssToggle = FindProperty("_sssToggle", props);
         sssColor = FindProperty("_SSSColor", props);
         rimColor = FindProperty("_RimColor", props);
@@ -170,18 +174,35 @@ public class SceneSimpleLitGUI : ShaderGUI
         BlendModePopup();
 
         Color mainColor = Color.white;
-
-        if ((BlendMode) blendMode.floatValue == BlendMode.Cutout)
+        switch ((BlendMode) blendMode.floatValue)
         {
-            m_MaterialEditor.ShaderProperty(cutoutStrength, "透贴强度", indent);
-        }
-        else if ((BlendMode) blendMode.floatValue == BlendMode.Transparent ||
-            (BlendMode) blendMode.floatValue == BlendMode.PreMultiply)
-        {
-            m_MaterialEditor.ShaderProperty(transparent, "透明度", indent);
-            m_MaterialEditor.ShaderProperty(transparentZWrite, "Z写入", indent);
-            mainColor = baseColor.colorValue;
-            mainColor.a = transparent.floatValue;
+            case BlendMode.Cutout:
+                m_MaterialEditor.ShaderProperty(ditherClip, "使用抖动裁剪", indent);
+                if (ditherClip.floatValue != 0)
+                    m_MaterialEditor.ShaderProperty(ditherCutoff, "过度范围", indent);
+                m_MaterialEditor.ShaderProperty(cutoutStrength, "透贴强度", indent);
+                break;
+            case BlendMode.Transparent:
+                m_MaterialEditor.ShaderProperty(transparent, "透明度", indent);
+                m_MaterialEditor.ShaderProperty(transparentZWrite, "Z写入", indent);
+                m_MaterialEditor.ShaderProperty(ditherClip, "抖动阴影投射", indent);
+                material.SetMaterialKeyword("_DITHER_TRANSPARENT", ditherClip.floatValue != 0);
+                mainColor = baseColor.colorValue;
+                mainColor.a = transparent.floatValue;
+                break;
+            case BlendMode.PreMultiply:
+                m_MaterialEditor.ShaderProperty(transparent, "透明度", indent);
+                m_MaterialEditor.ShaderProperty(transparentZWrite, "Z写入", indent);
+                m_MaterialEditor.ShaderProperty(ditherClip, "抖动阴影投射", indent);
+                material.SetMaterialKeyword("_DITHER_TRANSPARENT", ditherClip.floatValue != 0);
+                mainColor = baseColor.colorValue;
+                mainColor.a = transparent.floatValue;
+                break;
+            case BlendMode.Opaque:
+                material.SetMaterialKeyword("_DITHER_TRANSPARENT", false);
+                material.SetMaterialKeyword("_DITHER_CLIP", false);
+                ditherClip.floatValue = 0;
+                break;
         }
 
         CullModePopup();

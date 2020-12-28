@@ -1,7 +1,7 @@
 #ifndef BIOUM_SCENE_COMMON_PASS_INCLUDE
 #define BIOUM_SCENE_COMMON_PASS_INCLUDE
 
-#include "../Shader/ShaderLibrary/Lighting.hlsl"
+#include "../Shader/ShaderLibrary/LightingCharacter.hlsl"
 
 /// z pre pass
 
@@ -117,9 +117,14 @@ half4 CommonLitFrag(Varyings input): SV_TARGET
     
     Surface surface = (Surface)0;
     surface.albedo = sampleBaseMap(input.uv.xy);
-    #if _ALPHATEST_ON
+#if _ALPHATEST_ON
+    #if _DITHER_CLIP
+        float dither = GetDither(input.positionCS.xy);
+        DitherClip(surface.albedo.a, dither, _Cutoff, _DitherCutoff);
+    #else
         clip(surface.albedo.a - _Cutoff);
     #endif
+#endif
     
 #if _NORMALMAP
     half3 normalTS = sampleNormalMap(input.uv.xy);

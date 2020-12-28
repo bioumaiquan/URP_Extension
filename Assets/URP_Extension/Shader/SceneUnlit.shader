@@ -6,6 +6,7 @@
         _RimPower("边缘光范围", range(0.5, 10)) = 4
         [MainColor][HDR]_BaseColor("颜色", Color) = (1,1,1,1)
         [MainTexture]_BaseMap ("贴图", 2D) = "white" {}
+        _DitherCutoff("Dither范围", Range(0.0, 1.0)) = 0.2
         _Cutoff ("透贴强度", range(0,1)) = 0.5
         _Transparent ("透明度", range(0,1)) = 1
 
@@ -15,6 +16,8 @@
         _WindDirection ("风向", range(0,90)) = 40
         _WindIntensity ("强度", range(0, 1)) = 0.2
         _WindParam ("风参数", vector) = (0.2, 0, 0.2, 0.5)
+
+        [Toggle(_DITHER_CLIP)] _DitherClip ("_DitherClip", float) = 0
 
         [HideInInspector] _BlendMode ("_BlendMode", float) = 0
         [HideInInspector] _CullMode ("_CullMode", float) = 0
@@ -47,6 +50,7 @@
 
             #pragma multi_compile_fog
             #pragma shader_feature _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON
+            #pragma shader_feature _ _DITHER_CLIP
             #pragma shader_feature _ _RIM
             #pragma shader_feature _ _WIND
             
@@ -73,7 +77,8 @@
             #pragma vertex DepthOnlyVertex
             #pragma fragment DepthOnlyFragment
 
-            #pragma shader_feature _ALPHATEST_ON
+            #pragma shader_feature _ _ALPHATEST_ON
+            #pragma shader_feature _ _DITHER_CLIP
             #pragma shader_feature _ _WIND
 
             #include "../Shader/ShaderLibrary/DepthOnlyPass.hlsl"
@@ -96,6 +101,8 @@
             //#pragma multi_compile_instancing
 
             #pragma shader_feature _ _ALPHATEST_ON
+            #pragma shader_feature _ _DITHER_CLIP
+            #pragma shader_feature _ _DITHER_TRANSPARENT
             #pragma shader_feature _ _WIND
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment

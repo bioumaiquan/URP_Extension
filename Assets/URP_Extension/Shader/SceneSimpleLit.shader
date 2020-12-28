@@ -7,6 +7,7 @@
         [MainTexture]_BaseMap ("贴图", 2D) = "grey" {}
         [NoScaleOffset]_MAESMap ("(R)AO (A)自发光", 2D) = "white" {}
 
+        _DitherCutoff("Dither范围", Range(0.0, 1.0)) = 0.2
         _Cutoff("透贴强度", Range(0.0, 1.0)) = 0.5
         _Transparent("透明度", Range(0.0, 1.0)) = 1
 
@@ -28,6 +29,8 @@
 
         [HDR]_RimColor ("边缘光颜色", Color) = (0,0,0,1)
         _RimPower ("边缘光范围", range(1, 20)) = 4
+
+        [Toggle(_DITHER_CLIP)] _DitherClip ("_DitherClip", float) = 0
 
         [HideInInspector] _BlendMode ("_BlendMode", float) = 0
         [HideInInspector] _CullMode ("_CullMode", float) = 0
@@ -69,6 +72,7 @@
             #pragma multi_compile _ GREY
 
             #pragma shader_feature _ _ALPHATEST_ON _ALPHAPREMULTIPLY_ON
+            #pragma shader_feature _ _DITHER_CLIP
             #pragma shader_feature _ _NORMALMAP
             #pragma shader_feature _ _MASEMAP
             #pragma shader_feature _ _SSS
@@ -98,6 +102,8 @@
             //#pragma multi_compile_instancing
 
             #pragma shader_feature _ _ALPHATEST_ON
+            #pragma shader_feature _ _DITHER_CLIP
+            #pragma shader_feature _ _DITHER_TRANSPARENT
             #pragma shader_feature _ _WIND
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
@@ -123,6 +129,7 @@
             #pragma fragment DepthOnlyFragment
 
             #pragma shader_feature _ _ALPHATEST_ON
+            #pragma shader_feature _ _DITHER_CLIP
             #pragma shader_feature _ _WIND
 
             #include "../Shader/ShaderLibrary/DepthOnlyPass.hlsl"

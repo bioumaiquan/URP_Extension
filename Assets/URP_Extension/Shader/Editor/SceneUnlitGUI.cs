@@ -28,12 +28,14 @@ public class SceneUnlitGUI : ShaderGUI
 
     MaterialProperty blendMode = null;
     MaterialProperty cullMode = null;
+    MaterialProperty ditherClip = null;
 
     MaterialProperty baseMap = null;
     MaterialProperty baseColor = null;
     MaterialProperty rimColor = null;
     MaterialProperty rimPower = null;
     MaterialProperty cutoutStrength = null;
+    MaterialProperty ditherCutoff = null;
     MaterialProperty transparent = null;
     MaterialProperty transparentZWrite = null;
 
@@ -47,6 +49,7 @@ public class SceneUnlitGUI : ShaderGUI
 
     public void FindProperties(MaterialProperty[] props)
     {
+        ditherClip = FindProperty("_DitherClip", props);
         blendMode = FindProperty("_BlendMode", props);
         cullMode = FindProperty("_CullMode", props);
         baseMap = FindProperty("_BaseMap", props);
@@ -54,6 +57,7 @@ public class SceneUnlitGUI : ShaderGUI
         rimColor = FindProperty("_RimColor", props);
         rimPower = FindProperty("_RimPower", props);
         cutoutStrength = FindProperty("_Cutoff", props);
+        ditherCutoff = FindProperty("_DitherCutoff", props);
         transparent = FindProperty("_Transparent", props);
         transparentZWrite = FindProperty("_TransparentZWrite", props);
 
@@ -153,15 +157,31 @@ public class SceneUnlitGUI : ShaderGUI
 
         BlendModePopup();
 
-        if ((BlendMode) blendMode.floatValue == BlendMode.Cutout)
+        switch ((BlendMode) blendMode.floatValue)
         {
-            m_MaterialEditor.ShaderProperty(cutoutStrength, "透贴强度", indent);
-        }
-        else if ((BlendMode) blendMode.floatValue == BlendMode.Transparent ||
-            (BlendMode) blendMode.floatValue == BlendMode.PreMultiply)
-        {
-            m_MaterialEditor.ShaderProperty(transparent, "透明度", indent);
-            m_MaterialEditor.ShaderProperty(transparentZWrite, "Z写入", indent);
+            case BlendMode.Cutout:
+                m_MaterialEditor.ShaderProperty(ditherClip, "使用抖动裁剪", indent);
+                if (ditherClip.floatValue != 0)
+                    m_MaterialEditor.ShaderProperty(ditherCutoff, "过度范围", indent);
+                m_MaterialEditor.ShaderProperty(cutoutStrength, "透贴强度", indent);
+                break;
+            case BlendMode.Transparent:
+                m_MaterialEditor.ShaderProperty(transparent, "透明度", indent);
+                m_MaterialEditor.ShaderProperty(transparentZWrite, "Z写入", indent);
+                m_MaterialEditor.ShaderProperty(ditherClip, "抖动阴影投射", indent);
+                material.SetMaterialKeyword("_DITHER_TRANSPARENT", ditherClip.floatValue != 0);
+                break;
+            case BlendMode.PreMultiply:
+                m_MaterialEditor.ShaderProperty(transparent, "透明度", indent);
+                m_MaterialEditor.ShaderProperty(transparentZWrite, "Z写入", indent);
+                m_MaterialEditor.ShaderProperty(ditherClip, "抖动阴影投射", indent);
+                material.SetMaterialKeyword("_DITHER_TRANSPARENT", ditherClip.floatValue != 0);
+                break;
+            case BlendMode.Opaque:
+                material.SetMaterialKeyword("_DITHER_TRANSPARENT", false);
+                material.SetMaterialKeyword("_DITHER_CLIP", false);
+                ditherClip.floatValue = 0;
+                break;
         }
 
         CullModePopup();

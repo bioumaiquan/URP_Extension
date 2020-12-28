@@ -29,6 +29,7 @@ public class CharacterHairGUI : ShaderGUI
 
     MaterialProperty blendMode = null;
     MaterialProperty cullMode = null;
+    MaterialProperty ditherClip = null;
 
     MaterialProperty baseMap = null;
     MaterialProperty baseColor = null;
@@ -41,6 +42,7 @@ public class CharacterHairGUI : ShaderGUI
     MaterialProperty fresnelStrength = null;
     MaterialProperty AOStrength = null;
     MaterialProperty cutoutStrength = null;
+    MaterialProperty ditherCutoff = null;
     MaterialProperty sssToggle = null;
     MaterialProperty sssColor = null;
     MaterialProperty rimColor = null;
@@ -56,6 +58,7 @@ public class CharacterHairGUI : ShaderGUI
 
     public void FindProperties(MaterialProperty[] props)
     {
+        ditherClip = FindProperty("_DitherClip", props);
         blendMode = FindProperty("_BlendMode", props);
         cullMode = FindProperty("_CullMode", props);
         baseMap = FindProperty("_BaseMap", props);
@@ -69,6 +72,7 @@ public class CharacterHairGUI : ShaderGUI
         fresnelStrength = FindProperty("_FresnelStrength", props);
         AOStrength = FindProperty("_AOStrength", props);
         cutoutStrength = FindProperty("_Cutoff", props);
+        ditherCutoff = FindProperty("_DitherCutoff", props);
         sssToggle = FindProperty("_sssToggle", props);
         sssColor = FindProperty("_SSSColor", props);
         rimColor = FindProperty("_RimColor", props);
@@ -139,14 +143,21 @@ public class CharacterHairGUI : ShaderGUI
     const int indent = 1;
     public void ShaderPropertiesGUI(Material material)
     {
-
         BlendModePopup();
 
-        Color mainColor = Color.white;
-
-        if ((BlendMode) blendMode.floatValue != BlendMode.Opaque)
+        switch ((BlendMode) blendMode.floatValue)
         {
-            m_MaterialEditor.ShaderProperty(cutoutStrength, "透贴强度", indent);
+            case BlendMode.Cutout:
+                m_MaterialEditor.ShaderProperty(ditherClip, "使用抖动裁剪", indent);
+                if (ditherClip.floatValue != 0)
+                    m_MaterialEditor.ShaderProperty(ditherCutoff, "过度范围", indent);
+                m_MaterialEditor.ShaderProperty(cutoutStrength, "透贴强度", indent);
+                break;
+            case BlendMode.Opaque:
+                material.SetMaterialKeyword("_DITHER_TRANSPARENT", false);
+                material.SetMaterialKeyword("_DITHER_CLIP", false);
+                ditherClip.floatValue = 0;
+                break;
         }
 
         CullModePopup();

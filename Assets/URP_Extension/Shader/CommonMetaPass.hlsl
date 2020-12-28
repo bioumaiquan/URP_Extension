@@ -2,7 +2,7 @@
 #define COMMOM_META_PASS_INCLUDED
 
 
-#include "../Shader/ShaderLibrary/Lighting.hlsl"
+#include "../Shader/ShaderLibrary/LightingCommon.hlsl"
 #include "../Shader/ShaderLibrary/BRDF.hlsl"
 #include "../Shader/ShaderLibrary/GI.hlsl"
 

@@ -324,13 +324,20 @@ half2 WindAnimation(half3 positionWS)
 half2 PlantsAnimationNoise(float3 positionWS)
 {
     float2 pos = positionWS.xz * g_WindParam.w + _Time.y * g_WindParam.z;
-    float2 wave = snoise2D(pos) * g_WindParam.xy;
-    return wave;
+    float2 wave = snoise2D(pos);
+    return wave * g_WindParam.xy;
+}
+half2 PlantsAnimationNoise(float3 positionWS, half2 direction, half scale, half speed, out half2 waveColor)
+{
+    float2 pos = positionWS.xz * scale + _Time.y * speed;
+    float2 wave = snoise2D(pos);
+    waveColor = wave;
+    return wave * direction;
 }
 half2 PlantsAnimationNoise(float3 positionWS, half2 direction, half scale, half speed)
 {
     float2 pos = positionWS.xz * scale + _Time.y * speed;
-    float2 wave = snoise2D(pos) * direction;
-    return wave;
+    float2 wave = snoise2D(pos);
+    return wave * direction;
 }
 #endif

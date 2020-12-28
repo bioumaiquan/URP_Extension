@@ -1,7 +1,7 @@
 #ifndef BIOUM_SCENE_SIMPLELIT_PASS_INCLUDE
 #define BIOUM_SCENE_SIMPLELIT_PASS_INCLUDE
 
-#include "../Shader/ShaderLibrary/Lighting.hlsl"
+#include "../Shader/ShaderLibrary/LightingCommon.hlsl"
 
 struct Attributes
 {
@@ -35,6 +35,8 @@ struct Varyings
 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
     float4 shadowCoord : TEXCOORD7;
 #endif
+
+    real3 windColor : TEXCOORD8;
     
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
@@ -50,8 +52,13 @@ Varyings SimpleLitVert(Attributes input)
     float2 direction = _WindParam.xy;
     float scale = _WindParam.z;
     float speed = _WindParam.w;
-    float2 wave = PlantsAnimationNoise(output.positionWS, direction, scale, speed);
+    half2 waveColor = 0;
+    float2 wave = PlantsAnimationNoise(output.positionWS, direction, scale, speed, waveColor);
     output.positionWS.xz += wave * input.color.r;
+    waveColor.xy = waveColor.xy * 0.5 + 0.5;
+    output.windColor = waveColor.x * waveColor.y * input.color.r * 2;
+    output.windColor = Pow4(output.windColor);
+    //output.windColor = Square(output.windColor);
 #endif
     output.positionCS = TransformWorldToHClip(output.positionWS);
     
@@ -94,9 +101,14 @@ half4 SimpleLitFrag(Varyings input): SV_TARGET
     
     Surface surface = (Surface)0;
     surface.albedo = sampleBaseMap(input.uv.xy);
-    #if _ALPHATEST_ON
+#if _ALPHATEST_ON
+    #if _DITHER_CLIP
+        float dither = GetDither(input.positionCS.xy);
+        DitherClip(surface.albedo.a, dither, _Cutoff, _DitherCutoff);
+    #else
         clip(surface.albedo.a - _Cutoff);
     #endif
+#endif
     
 #if _NORMALMAP
     half3 normalTS = sampleNormalMap(input.uv.xy);
@@ -131,6 +143,8 @@ half4 SimpleLitFrag(Varyings input): SV_TARGET
     
     half3 color = LightingLambert(surface, vertexData, gi, rimColor);
     color += emissive;
+
+    color = lerp(color, half3(1, 1 , 0.2), input.windColor);
 
 #if GREY
     color = Luminance(color);

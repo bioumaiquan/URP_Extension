@@ -55,10 +55,15 @@ struct Light
     half    shadowAttenuation;
 };
 
+real3 MainLightDirection()
+{
+    return _MainLightPosition.xyz;
+}
+
 Light GetMainLight()
 {
     Light light;
-    light.direction = _MainLightPosition.xyz;
+    light.direction = MainLightDirection();
 
     // unity_LightData.z is 1 when not culled by the culling mask, otherwise 0.
     light.distanceAttenuation = unity_LightData.z;

@@ -1,7 +1,7 @@
 #ifndef BIOUM_SCENE_SIMPLELIT_PASS_INCLUDE
 #define BIOUM_SCENE_SIMPLELIT_PASS_INCLUDE
 
-#include "../Shader/ShaderLibrary/Lighting.hlsl"
+#include "../Shader/ShaderLibrary/LightingCommon.hlsl"
 
 struct Attributes
 {

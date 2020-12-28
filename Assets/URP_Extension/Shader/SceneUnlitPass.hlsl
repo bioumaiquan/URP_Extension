@@ -52,9 +52,14 @@ half4 UnlitFrag(Varyings input): SV_TARGET
     UNITY_SETUP_INSTANCE_ID(input);
     
     half4 albedo = sampleBaseMap(input.uv.xy);
-    #if _ALPHATEST_ON
-        clip(albedo.a - GetCutoff());
+#if _ALPHATEST_ON
+    #if _DITHER_CLIP
+        float dither = GetDither(input.positionCS.xy);
+        DitherClip(albedo.a, dither, _Cutoff, _DitherCutoff);
+    #else
+        clip(albedo.a - _Cutoff);
     #endif
+#endif
 
     half3 color = albedo.rgb;
     half alpha = GetAlpha() * albedo.a;

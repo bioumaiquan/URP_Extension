@@ -3,7 +3,7 @@
 
 #include "../Shader/ShaderLibrary/Common.hlsl"
 #include "../Shader/ShaderLibrary/Surface.hlsl"
-#include "../Shader/ShaderLibrary/Lighting.hlsl"
+#include "../Shader/ShaderLibrary/LightingCommon.hlsl"
 #include "../Shader/ShaderLibrary/Fog.hlsl"
 
 sampler2D _NormalTex; 
@@ -122,8 +122,13 @@ half4 WaterLitFrag(Varyings input): SV_TARGET
 #endif
     half foamEdge = edge;//saturate(lerp(0, _FoamEdgeRange, edge));
 
-    half3 normalTS = bump0.xyz + bump1.xyz - 1;  // ((bump0 * 2 - 1) + (bump1 * 2 - 1)) / 2
-    normalTS.xy *= _NormalScale;
+    //half3 normalTS = bump0.xyz + bump1.xyz - 1;  // ((bump0 * 2 - 1) + (bump1 * 2 - 1)) / 2
+    //normalTS.xy *= _NormalScale;
+    
+    bump0.xyz = UnpackNormalScale(bump0, _NormalScale);
+    bump1.xyz = UnpackNormalScale(bump1, _NormalScale);
+    half3 normalTS = SafeNormalize(bump0.xyz + bump1.xyz);
+    
     half3x3 TBN = half3x3(input.tangentWS.xyz, input.bitangentWS.xyz, input.normalWS.xyz);
     half3 normalWS = SafeNormalize(mul(normalTS, TBN));
     half3 viewDirWS = SafeNormalize(half3(input.tangentWS.w, input.bitangentWS.w, input.normalWS.w));
@@ -143,7 +148,7 @@ half4 WaterLitFrag(Varyings input): SV_TARGET
 
     half fresnel = 1 - max(0, dot(envNormal, surface.viewDirection));
     fresnel = PositivePow(fresnel, _FresnelPower);
-    alpha *= fresnel;
+    //alpha *= fresnel;
     alpha *= _Transparent;
 
     half4 shadowCoord = 0;
@@ -165,6 +170,7 @@ half4 WaterLitFrag(Varyings input): SV_TARGET
         env.a *= _ReflectionTransparent;
         envReflection = lerp(envReflection, env.rgb, env.a);
     #endif
+    envReflection *= fresnel;
 
     //wave
 #if _WAVE
@@ -192,7 +198,7 @@ half4 WaterLitFrag(Varyings input): SV_TARGET
     color = MixFog(color, input.positionWSAndFog.w);
 
     color = max(0.001, color);
-
+    
     return half4(color, alpha);
 }
 

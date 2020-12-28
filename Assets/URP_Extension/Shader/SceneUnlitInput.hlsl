@@ -10,6 +10,7 @@ half4 _BaseColor;
 half4 _RimColor;
 half _Transparent;
 half _Cutoff;
+half _DitherCutoff;
 half4 _WindParam; //xy:direction z:scale w:speed
 CBUFFER_END
 

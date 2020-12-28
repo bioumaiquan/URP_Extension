@@ -17,6 +17,7 @@ half _NormalScale;
 half _AOStrength;
 half _Transparent;
 half _Cutoff;
+half _DitherCutoff;
 
 bool _NormalMapDXGLSwitch;
 half4 _WindParam; //xy:direction z:scale w:speed

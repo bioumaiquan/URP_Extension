@@ -21,6 +21,7 @@ half _FresnelStrength;
 half _Transparent;
 half _Cutoff;
 half _Intensity;
+half _DitherCutoff;
 
 half _SubIntensity;
 half _Shift;

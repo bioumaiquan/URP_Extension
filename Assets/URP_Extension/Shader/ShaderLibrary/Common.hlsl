@@ -48,4 +48,54 @@ real SoftEdge(real near, real far, real4 positionNDC)
     return fade;
 }
 
+float GetDither(float2 positionCS)
+{
+    return InterleavedGradientNoise(positionCS, 0);
+}
+
+void DitherLOD (float fade, float dither) 
+{
+	#if defined(LOD_FADE_CROSSFADE)
+		clip(fade + (fade < 0.0 ? dither : -dither));
+	#endif
+}
+
+void DitherLOD (float fade, float2 positionCS) 
+{
+	#if defined(LOD_FADE_CROSSFADE)
+        float dither = InterleavedGradientNoise(positionCS, 0);
+		clip(fade + (fade < 0.0 ? dither : -dither));
+	#endif
+}
+
+void DitherClip(real alpha, real dither, real cutoff, real ditherCutoff)
+{
+    clip((alpha - cutoff) - (dither * ditherCutoff));
+}
+
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

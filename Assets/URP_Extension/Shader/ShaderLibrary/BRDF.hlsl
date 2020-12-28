@@ -68,6 +68,8 @@ BRDF GetSimpleBRDF(Surface surface, inout half alpha)
     brdf.roughness2MinusOne = brdf.roughness2 - 1.0h;
 
     #if _ALPHAPREMULTIPLY_ON
+        half oneMinusReflectivity = ONEMINUS_MIN_REFLECTIVITY;
+        half reflectivity = MIN_REFLECTIVITY;
         brdf.diffuse *= alpha;
         alpha = alpha * oneMinusReflectivity + reflectivity;
     #endif

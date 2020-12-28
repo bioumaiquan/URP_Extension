@@ -4,28 +4,35 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 
+#if _ALPHATEST_ON || _DITHER_CLIP || _DITHER_TRANSPARENT
+#define SHOULD_SAMPLE_TEXTURE
+#endif
+
+
 float3 _LightDirection;
 
 struct Attributes
 {
     float4 positionOS   : POSITION;
     float3 normalOS     : NORMAL;
-    #if _ALPHATEST_ON
+#ifdef SHOULD_SAMPLE_TEXTURE
     float2 texcoord     : TEXCOORD0;
-    #endif
-    #if _WIND
+#endif
+#if _WIND
     real4 color : COLOR;
-    #endif
+#endif
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
 struct Varyings
 {
-    #if _ALPHATEST_ON
+#ifdef SHOULD_SAMPLE_TEXTURE
     float2 uv           : TEXCOORD0;
-    #endif
+#endif
     float4 positionCS   : SV_POSITION;
 };
+
+
 
 float4 GetShadowPositionHClip(Attributes input)
 {
@@ -55,9 +62,9 @@ Varyings ShadowPassVertex(Attributes input)
     Varyings output;
     UNITY_SETUP_INSTANCE_ID(input);
 
-    #if _ALPHATEST_ON
+#ifdef SHOULD_SAMPLE_TEXTURE
     output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
-    #endif
+#endif
 
     output.positionCS = GetShadowPositionHClip(input);
     return output;
@@ -65,10 +72,20 @@ Varyings ShadowPassVertex(Attributes input)
 
 half4 ShadowPassFragment(Varyings input) : SV_TARGET
 {
-    #if _ALPHATEST_ON
-        half alpha = sampleBaseMap(input.uv).a;
-        clip(alpha - _Cutoff);
-    #endif
+#ifdef SHOULD_SAMPLE_TEXTURE
+    float alpha = sampleBaseMap(input.uv).a;
+#endif
+
+#if _ALPHATEST_ON && !_DITHER_CLIP              // 常规cutout
+    clip(alpha - _Cutoff);
+#elif _DITHER_CLIP && !_DITHER_TRANSPARENT      // cutout并且开启dither
+    float dither = GetDither(input.positionCS.xy);
+    DitherClip(alpha, dither, _Cutoff, _DitherCutoff);
+#elif _DITHER_CLIP && _DITHER_TRANSPARENT       // 半透并且开启dither
+    alpha *= _Transparent;
+    float dither = GetDither(input.positionCS.xy);
+    clip(alpha - dither);
+#endif
     //Alpha(SampleAlbedoAlpha(input.uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)).a, _BaseColor, _Cutoff);
     return 0;
 }

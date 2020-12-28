@@ -1,6 +1,10 @@
 #ifndef BIOUM_DEPTH_ONLY_PASS_INCLUDED
 #define BIOUM_DEPTH_ONLY_PASS_INCLUDED
 
+#if _ALPHATEST_ON || _DITHER_CLIP
+#define SHOULD_SAMPLE_TEXTURE
+#endif
+
 struct Attributes
 {
     float4 positionOS     : POSITION;
@@ -11,7 +15,7 @@ struct Attributes
 
 struct Varyings
 {
-    #if _ALPHATEST_ON
+    #ifdef SHOULD_SAMPLE_TEXTURE
     float2 uv           : TEXCOORD0;
     #endif
     float4 positionCS   : SV_POSITION;
@@ -25,7 +29,7 @@ Varyings DepthOnlyVertex(Attributes input)
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-    #if _ALPHATEST_ON
+    #ifdef SHOULD_SAMPLE_TEXTURE
     output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
     #endif
     float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
@@ -44,10 +48,18 @@ half4 DepthOnlyFragment(Varyings input) : SV_TARGET
 {
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 
-    #if _ALPHATEST_ON
-        half alpha = sampleBaseMap(input.uv).a;
+#ifdef SHOULD_SAMPLE_TEXTURE
+    float alpha = sampleBaseMap(input.uv).a;
+#endif
+
+#if _ALPHATEST_ON
+    #if _DITHER_CLIP
+        float dither = GetDither(input.positionCS.xy);
+        DitherClip(alpha, dither, _Cutoff, _DitherCutoff);
+    #else
         clip(alpha - _Cutoff);
     #endif
+#endif
 
    // Alpha(SampleAlbedoAlpha(input.uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)).a, _BaseColor, _Cutoff);
     return 0;

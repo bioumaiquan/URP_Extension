@@ -78,6 +78,8 @@ Material:
     - _Cull: 2
     - _CullMode: 0
     - _Cutoff: 0.5
+    - _DitherClip: 0
+    - _DitherCutoff: 0.2
     - _DstBlend: 0
     - _EnvironmentReflections: 1
     - _FresnelStrength: 1

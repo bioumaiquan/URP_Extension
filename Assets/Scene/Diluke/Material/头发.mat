@@ -1,0 +1,134 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: "\u5934\u53D1"
+  m_Shader: {fileID: 4800000, guid: 61bb51c95ee6cb44abe20aec855b1196, type: 3}
+  m_ShaderKeywords: _DOUBLE_SPECULAR _RIM _SSS _TONEMAPPING_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 2000
+  stringTagMap:
+    RenderType: Opaque
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: 6e0f25a5a1942c34b990aa27a6354733, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MAESMap:
+        m_Texture: {fileID: 2800000, guid: 7bd6da52efb723344885757646a029a5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskMap:
+        m_Texture: {fileID: 2800000, guid: 7bd6da52efb723344885757646a029a5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _AOStrength: 0.885
+    - _AlphaClip: 0
+    - _Blend: 0
+    - _BlendMode: 0
+    - _BumpScale: 1
+    - _Cull: 2
+    - _CullMode: 0
+    - _Cutoff: 0.5
+    - _DoubleSpecular: 1
+    - _DstBlend: 0
+    - _EnvironmentReflections: 1
+    - _FresnelStrength: 0.784
+    - _GlossMapScale: 0
+    - _Glossiness: 0
+    - _GlossyReflections: 0
+    - _Intensity: 0.591
+    - _LightIntensity: 1
+    - _Metallic: 0
+    - _NormalMapDXGLSwitch: 0
+    - _NormalScale: 1
+    - _OcclusionStrength: 1
+    - _QueueOffset: 0
+    - _ReceiveShadows: 1
+    - _RimOffsetX: 0.636
+    - _RimOffsetY: 0.641
+    - _RimPower: 5.18
+    - _RimSmooth: 0.145
+    - _RimToggle: 1
+    - _Shift: 0.13
+    - _SmoothDiff: 0.374
+    - _Smoothness: 0.85
+    - _SmoothnessTextureChannel: 0
+    - _SpecIntensity: 0.328
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _SubIntensity: 0.364
+    - _SubShift: 0
+    - _SubSmoothness: 0.615
+    - _SubSpecIntensity: 0.21
+    - _Surface: 0
+    - _SwitchTangent: 0
+    - _ToneMapping: 1
+    - _Transparent: 1
+    - _WorkflowMode: 1
+    - _ZWrite: 1
+    - _sssToggle: 1
+    m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.5882353, g: 0.5882353, b: 0.5882353, a: 1}
+    - _EmiColor: {r: 0, g: 0, b: 0, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _LightColorControl: {r: 0.52, g: 0.52, b: 0.52, a: 1}
+    - _RimColor: {r: 0.8679245, g: 0.79013884, b: 0.79013884, a: 12.7}
+    - _RimColorBack: {r: 0.4056604, g: 0.001913497, b: 0.009508278, a: 1}
+    - _RimColorFront: {r: 1, g: 1, b: 1, a: 1}
+    - _RimParam: {r: 0.636, g: 0.641, b: 0.145, a: 5.18}
+    - _SSSColor: {r: 0.23584908, g: 0.08654479, b: 0, a: 1}
+    - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+--- !u!114 &6686228270632788346
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 2

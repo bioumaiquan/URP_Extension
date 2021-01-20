@@ -72,6 +72,7 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Metallic: 1
+    - _NormalMapDXGLSwitch: 0
     - _NormalScale: 1
     - _OcclusionStrength: 1
     - _QueueOffset: 0

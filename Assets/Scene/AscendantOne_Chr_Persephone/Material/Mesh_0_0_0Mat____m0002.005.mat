@@ -65,6 +65,8 @@ Material:
     - _Cull: 2
     - _CullMode: 0
     - _Cutoff: 0.5
+    - _DitherClip: 0
+    - _DitherCutoff: 0.2
     - _DstBlend: 10
     - _EnvironmentReflections: 1
     - _FresnelStrength: 1
@@ -96,7 +98,7 @@ Material:
     - _ZWrite: 0
     - _sssToggle: 0
     m_Colors:
-    - _BaseColor: {r: 10.432951, g: 1.747929, b: 1.3655695, a: 1}
+    - _BaseColor: {r: 6.130208, g: 1.3386751, b: 1.1277272, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmiColor: {r: 6.6415095, g: 1.5941712, b: 1.3470987, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

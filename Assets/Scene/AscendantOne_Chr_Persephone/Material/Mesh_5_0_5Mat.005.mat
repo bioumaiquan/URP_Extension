@@ -72,13 +72,14 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Metallic: 0
+    - _NormalMapDXGLSwitch: 0
     - _NormalScale: 0.5
     - _OcclusionStrength: 1
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _RimPower: 4
     - _Smoothness: 0.5
-    - _SmoothnessMax: 0.8382259
+    - _SmoothnessMax: 0.14423162
     - _SmoothnessMin: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1

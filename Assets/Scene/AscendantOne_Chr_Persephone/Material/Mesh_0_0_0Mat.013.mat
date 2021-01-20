@@ -68,7 +68,7 @@ Material:
     - _BumpScale: 1
     - _Cull: 2
     - _CullMode: 0
-    - _CurveMax: 0.31089425
+    - _CurveMax: 0.434
     - _CurveMin: 0
     - _Cutoff: 0.5
     - _DoubleSpecular: 0
@@ -81,14 +81,14 @@ Material:
     - _Intensity: 0.5
     - _Metallic: 0
     - _NormalMapDXGLSwitch: 1
-    - _NormalScale: 0.5
+    - _NormalScale: 0.2
     - _OcclusionStrength: 1
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _RimPower: 7.7
     - _Shift: 0
     - _Smoothness: 0.5
-    - _SmoothnessMax: 0.6784299
+    - _SmoothnessMax: 0.6059799
     - _SmoothnessMin: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -111,8 +111,8 @@ Material:
     - _EmiColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _RimColor: {r: 0, g: 0, b: 0, a: 7.7}
-    - _SSSColor: {r: 0.509434, g: 0.0483987, b: 0.016820943, a: 1}
-    - _SmoothCurve: {r: 0, g: 0.6784299, b: 0, a: 0.31089425}
+    - _SSSColor: {r: 0.56700003, g: 0.028350009, b: 0.028350009, a: 1}
+    - _SmoothCurve: {r: 0, g: 0.6059799, b: 0, a: 0.39097053}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
 --- !u!114 &4631097572198312276
 MonoBehaviour:

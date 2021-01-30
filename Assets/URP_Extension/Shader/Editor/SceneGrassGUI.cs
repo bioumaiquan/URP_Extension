@@ -95,8 +95,8 @@ public class SceneGrassGUI : ShaderGUI
         {
             case BlendMode.Opaque:
                 material.SetOverrideTag("RenderType", "Opaque");
-                material.SetMaterialKeyword("_ALPHATEST_ON", false);
-                material.SetMaterialKeyword("_ALPHAPREMULTIPLY_ON", false);
+                material.SetKeyword("_ALPHATEST_ON", false);
+                material.SetKeyword("_ALPHAPREMULTIPLY_ON", false);
                 material.SetInt("_ZWrite", 1);
                 material.SetInt("_SrcBlend", (int) UnityEngine.Rendering.BlendMode.One);
                 material.SetInt("_DstBlend", (int) UnityEngine.Rendering.BlendMode.Zero);
@@ -104,8 +104,8 @@ public class SceneGrassGUI : ShaderGUI
                 break;
             case BlendMode.Cutout:
                 material.SetOverrideTag("RenderType", "TransparentCutout");
-                material.SetMaterialKeyword("_ALPHATEST_ON", true);
-                material.SetMaterialKeyword("_ALPHAPREMULTIPLY_ON", false);
+                material.SetKeyword("_ALPHATEST_ON", true);
+                material.SetKeyword("_ALPHAPREMULTIPLY_ON", false);
                 material.SetInt("_ZWrite", 1);
                 material.SetInt("_SrcBlend", (int) UnityEngine.Rendering.BlendMode.One);
                 material.SetInt("_DstBlend", (int) UnityEngine.Rendering.BlendMode.Zero);
@@ -143,28 +143,28 @@ public class SceneGrassGUI : ShaderGUI
                 m_MaterialEditor.ShaderProperty(cutoutStrength, "透贴强度", indent);
                 break;
             case BlendMode.Opaque:
-                material.SetMaterialKeyword("_DITHER_TRANSPARENT", false);
-                material.SetMaterialKeyword("_DITHER_CLIP", false);
+                material.SetKeyword("_DITHER_TRANSPARENT", false);
+                material.SetKeyword("_DITHER_CLIP", false);
                 ditherClip.floatValue = 0;
                 break;
         }
 
         CullModePopup();
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(baseColor, "底部颜色");
         m_MaterialEditor.ShaderProperty(topColor, "顶部颜色");
         m_MaterialEditor.ShaderProperty(waveColor, "波浪颜色(需要开启风)");
         m_MaterialEditor.TexturePropertySingleLine(Styles.baseMapText, baseMap);
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(sssToggle, "SSS");
         if (sssToggle.floatValue != 0)
         {
             m_MaterialEditor.ShaderProperty(sssColor, "SSS颜色", indent);
         }
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(windToggle, "风开关");
         if (windToggle.floatValue != 0)
         {

@@ -131,12 +131,12 @@ public class CharacterToneHairGUI : ShaderGUI
         {
             case BlendMode.Opaque:
                 material.SetOverrideTag("RenderType", "Opaque");
-                material.SetMaterialKeyword("_ALPHATEST_ON", false);
+                material.SetKeyword("_ALPHATEST_ON", false);
                 material.renderQueue = (int) UnityEngine.Rendering.RenderQueue.Geometry;
                 break;
             case BlendMode.Cutout:
                 material.SetOverrideTag("RenderType", "TransparentCutout");
-                material.SetMaterialKeyword("_ALPHATEST_ON", true);
+                material.SetKeyword("_ALPHATEST_ON", true);
                 material.renderQueue = (int) UnityEngine.Rendering.RenderQueue.AlphaTest;
                 break;
         }
@@ -175,10 +175,10 @@ public class CharacterToneHairGUI : ShaderGUI
 
         m_MaterialEditor.ShaderProperty(switchTangent, "高光方向切换", indent);
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.TexturePropertySingleLine(Styles.baseMapText, baseMap, baseColor);
         m_MaterialEditor.TexturePropertySingleLine(Styles.normalMapText, normalMap, normalScale);
-        material.SetMaterialKeyword("_NORMALMAP", normalMap.textureValue != null);
+        material.SetKeyword("_NORMALMAP", normalMap.textureValue != null);
 
         m_MaterialEditor.TexturePropertySingleLine(Styles.maskMapText, maskMap);
 
@@ -191,17 +191,17 @@ public class CharacterToneHairGUI : ShaderGUI
         lightColorControl.colorValue = colorControl;
 
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(metallic, "金属度");
         m_MaterialEditor.ShaderProperty(fresnelStrength, "菲涅尔强度");
         m_MaterialEditor.ShaderProperty(AOStrength, "AO强度");
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(smoothness, "光滑度");
         m_MaterialEditor.ShaderProperty(specIntensity, "高光强度");
         m_MaterialEditor.ShaderProperty(shift, "高光偏移");
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(doubleSpecular, "双层高光");
         if (doubleSpecular.floatValue != 0)
         {
@@ -212,14 +212,14 @@ public class CharacterToneHairGUI : ShaderGUI
             EditorGUI.indentLevel -= indent;
         }
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(sssToggle, "SSS");
         if (sssToggle.floatValue != 0)
         {
             m_MaterialEditor.ShaderProperty(sssColor, "SSS颜色", indent);
         }
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(rimToggle, "边缘光开关");
         if(rimToggle.floatValue != 0)
         {

@@ -79,12 +79,7 @@ Varyings SimpleLitVert(Attributes input)
     OUTPUT_GI_SH(output.normalWS.xyz, output.vertexSH);
     
 #ifdef _ADDITIONAL_LIGHTS_VERTEX
-    uint vertexLightCount = GetAdditionalLightsCount();
-    for (uint lightIndex = 0u; lightIndex < vertexLightCount; ++ lightIndex)
-    {
-        Light light = GetAdditionalLight(lightIndex, output.positionWS);
-        output.VertexLightAndFog.rgb += Lambert(light.color, light.direction, output.normalWS.xyz);
-    }
+    output.VertexLightAndFog.rgb = VertexLighting(light, output.normalWS, output.positionWS);
 #endif
     output.VertexLightAndFog.w = ComputeFogFactor(output.positionCS.z);
 

@@ -71,7 +71,7 @@ public class PlanarReflection : MonoBehaviour
 
         go.hideFlags = HideFlags.HideAndDontSave;
 
-        material.SetMaterialKeyword("_REFLECTION_TEXTURE", true);
+        material.SetKeyword("_REFLECTION_TEXTURE", true);
 
         this.gameObject.layer = 4; // 设置为water 防止反射自身
     }
@@ -91,7 +91,7 @@ public class PlanarReflection : MonoBehaviour
             RemoveObject(reflectionCamera.gameObject);
             reflectionCamera = null;
         }
-        material.SetMaterialKeyword("_REFLECTION_TEXTURE", false);
+        material.SetKeyword("_REFLECTION_TEXTURE", false);
         oldSize = 0;
     }
 

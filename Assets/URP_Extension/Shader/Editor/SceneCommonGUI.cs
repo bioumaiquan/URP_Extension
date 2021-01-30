@@ -125,8 +125,8 @@ public class SceneCommonGUI : ShaderGUI
         {
             case BlendMode.Opaque:
                 material.SetOverrideTag("RenderType", "Opaque");
-                material.SetMaterialKeyword("_ALPHATEST_ON", false);
-                material.SetMaterialKeyword("_ALPHAPREMULTIPLY_ON", false);
+                material.SetKeyword("_ALPHATEST_ON", false);
+                material.SetKeyword("_ALPHAPREMULTIPLY_ON", false);
                 material.SetInt("_ZWrite", 1);
                 material.SetInt("_SrcBlend", (int) UnityEngine.Rendering.BlendMode.One);
                 material.SetInt("_DstBlend", (int) UnityEngine.Rendering.BlendMode.Zero);
@@ -134,8 +134,8 @@ public class SceneCommonGUI : ShaderGUI
                 break;
             case BlendMode.Cutout:
                 material.SetOverrideTag("RenderType", "TransparentCutout");
-                material.SetMaterialKeyword("_ALPHATEST_ON", true);
-                material.SetMaterialKeyword("_ALPHAPREMULTIPLY_ON", false);
+                material.SetKeyword("_ALPHATEST_ON", true);
+                material.SetKeyword("_ALPHAPREMULTIPLY_ON", false);
                 material.SetInt("_ZWrite", 1);
                 material.SetInt("_SrcBlend", (int) UnityEngine.Rendering.BlendMode.One);
                 material.SetInt("_DstBlend", (int) UnityEngine.Rendering.BlendMode.Zero);
@@ -143,8 +143,8 @@ public class SceneCommonGUI : ShaderGUI
                 break;
             case BlendMode.Transparent:
                 material.SetOverrideTag("RenderType", "Transparent");
-                material.SetMaterialKeyword("_ALPHATEST_ON", false);
-                material.SetMaterialKeyword("_ALPHAPREMULTIPLY_ON", false);
+                material.SetKeyword("_ALPHATEST_ON", false);
+                material.SetKeyword("_ALPHAPREMULTIPLY_ON", false);
                 material.SetInt("_ZWrite", (int) transparentZWrite.floatValue);
                 material.SetInt("_SrcBlend", (int) UnityEngine.Rendering.BlendMode.SrcAlpha);
                 material.SetInt("_DstBlend", (int) UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
@@ -152,8 +152,8 @@ public class SceneCommonGUI : ShaderGUI
                 break;
             case BlendMode.PreMultiply:
                 material.SetOverrideTag("RenderType", "Transparent");
-                material.SetMaterialKeyword("_ALPHATEST_ON", false);
-                material.SetMaterialKeyword("_ALPHAPREMULTIPLY_ON", true);
+                material.SetKeyword("_ALPHATEST_ON", false);
+                material.SetKeyword("_ALPHAPREMULTIPLY_ON", true);
                 material.SetInt("_ZWrite", (int) transparentZWrite.floatValue);
                 material.SetInt("_SrcBlend", (int) UnityEngine.Rendering.BlendMode.One);
                 material.SetInt("_DstBlend", (int) UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
@@ -196,7 +196,7 @@ public class SceneCommonGUI : ShaderGUI
                 m_MaterialEditor.ShaderProperty(transparent, "透明度", indent);
                 m_MaterialEditor.ShaderProperty(transparentZWrite, "Z写入", indent);
                 m_MaterialEditor.ShaderProperty(ditherClip, "抖动阴影投射", indent);
-                material.SetMaterialKeyword("_DITHER_TRANSPARENT", ditherClip.floatValue != 0);
+                material.SetKeyword("_DITHER_TRANSPARENT", ditherClip.floatValue != 0);
                 mainColor = baseColor.colorValue;
                 mainColor.a = transparent.floatValue;
                 break;
@@ -204,20 +204,20 @@ public class SceneCommonGUI : ShaderGUI
                 m_MaterialEditor.ShaderProperty(transparent, "透明度", indent);
                 m_MaterialEditor.ShaderProperty(transparentZWrite, "Z写入", indent);
                 m_MaterialEditor.ShaderProperty(ditherClip, "抖动阴影投射", indent);
-                material.SetMaterialKeyword("_DITHER_TRANSPARENT", ditherClip.floatValue != 0);
+                material.SetKeyword("_DITHER_TRANSPARENT", ditherClip.floatValue != 0);
                 mainColor = baseColor.colorValue;
                 mainColor.a = transparent.floatValue;
                 break;
             case BlendMode.Opaque:
-                material.SetMaterialKeyword("_DITHER_TRANSPARENT", false);
-                material.SetMaterialKeyword("_DITHER_CLIP", false);
+                material.SetKeyword("_DITHER_TRANSPARENT", false);
+                material.SetKeyword("_DITHER_CLIP", false);
                 ditherClip.floatValue = 0;
                 break;
         }
 
         CullModePopup();
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.TexturePropertySingleLine(Styles.baseMapText, baseMap, baseColor);
         m_MaterialEditor.TexturePropertySingleLine(Styles.normalMapText, normalMap, normalScale);
         if (normalMap.textureValue != null)
@@ -229,7 +229,7 @@ public class SceneCommonGUI : ShaderGUI
             material.SetColor("_Color", mainColor);
         }
 
-        material.SetMaterialKeyword("_NORMALMAP", normalMap.textureValue != null);
+        material.SetKeyword("_NORMALMAP", normalMap.textureValue != null);
 
         EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(emissiveColor, "自发光");
@@ -240,7 +240,7 @@ public class SceneCommonGUI : ShaderGUI
             material.globalIlluminationFlags &= ~MaterialGlobalIlluminationFlags.EmissiveIsBlack;
         }
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         if (maesMap.textureValue != null)
         {
             float sMin = smoothnessMin.floatValue;
@@ -263,14 +263,14 @@ public class SceneCommonGUI : ShaderGUI
         m_MaterialEditor.ShaderProperty(AOStrength, "AO强度");
         m_MaterialEditor.ShaderProperty(specularTint, "非金属反射着色");
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(sssToggle, "SSS");
         if (sssToggle.floatValue != 0)
         {
             m_MaterialEditor.ShaderProperty(sssColor, "SSS颜色", indent);
         }
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(windToggle, "风开关");
         if (windToggle.floatValue != 0)
         {
@@ -284,13 +284,13 @@ public class SceneCommonGUI : ShaderGUI
             windParam.vectorValue = new Vector4(x, y, windScale.floatValue, windSpeed.floatValue);
         }
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(this.rimColor, "边缘光颜色");
         m_MaterialEditor.ShaderProperty(rimPower, "边缘光范围");
         Color rimColor = this.rimColor.colorValue;
         rimColor.a = rimPower.floatValue;
         this.rimColor.colorValue = rimColor;
-        material.SetMaterialKeyword("_RIM", rimColor.maxColorComponent >= 0.04f);
+        material.SetKeyword("_RIM", rimColor.maxColorComponent >= 0.04f);
     }
 
     void BlendModePopup()

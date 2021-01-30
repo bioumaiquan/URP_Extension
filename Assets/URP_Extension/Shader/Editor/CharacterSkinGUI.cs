@@ -78,9 +78,9 @@ public class CharacterSkinGUI : ShaderGUI
             m_MaterialEditor.ShaderProperty(normalMapSwitch, "DX/OpenGL切换", indent);
         m_MaterialEditor.TexturePropertySingleLine(Styles.maesMapText, maesMap);
 
-        material.SetMaterialKeyword("_NORMALMAP", normalMap.textureValue != null);
+        material.SetKeyword("_NORMALMAP", normalMap.textureValue != null);
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         if (maesMap.textureValue != null)
         {
             float sMin = smoothnessMin.floatValue;
@@ -108,7 +108,7 @@ public class CharacterSkinGUI : ShaderGUI
         m_MaterialEditor.ShaderProperty(fresnelStrength, "菲涅尔强度");
         m_MaterialEditor.ShaderProperty(AOStrength, "AO强度");
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(sssToggle, "SSS");
         if (sssToggle.floatValue != 0)
         {
@@ -116,12 +116,12 @@ public class CharacterSkinGUI : ShaderGUI
             m_MaterialEditor.ShaderProperty(curveMax, "SSS强度", indent);
         }
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(this.rimColor, "边缘光颜色");
         m_MaterialEditor.ShaderProperty(rimPower, "边缘光范围");
         Color rimColor = this.rimColor.colorValue;
         rimColor.a = rimPower.floatValue;
         this.rimColor.colorValue = rimColor;
-        material.SetMaterialKeyword("_RIM", rimColor.maxColorComponent >= 0.04f);
+        material.SetKeyword("_RIM", rimColor.maxColorComponent >= 0.04f);
     }
 }

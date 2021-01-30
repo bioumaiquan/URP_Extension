@@ -113,12 +113,12 @@ public class CharacterHairGUI : ShaderGUI
         {
             case BlendMode.Opaque:
                 material.SetOverrideTag("RenderType", "Opaque");
-                material.SetMaterialKeyword("_ALPHATEST_ON", false);
+                material.SetKeyword("_ALPHATEST_ON", false);
                 material.renderQueue = (int) UnityEngine.Rendering.RenderQueue.Geometry;
                 break;
             case BlendMode.Cutout:
                 material.SetOverrideTag("RenderType", "TransparentCutout");
-                material.SetMaterialKeyword("_ALPHATEST_ON", true);
+                material.SetKeyword("_ALPHATEST_ON", true);
                 material.renderQueue = (int) UnityEngine.Rendering.RenderQueue.AlphaTest;
                 break;
         }
@@ -154,8 +154,8 @@ public class CharacterHairGUI : ShaderGUI
                 m_MaterialEditor.ShaderProperty(cutoutStrength, "透贴强度", indent);
                 break;
             case BlendMode.Opaque:
-                material.SetMaterialKeyword("_DITHER_TRANSPARENT", false);
-                material.SetMaterialKeyword("_DITHER_CLIP", false);
+                material.SetKeyword("_DITHER_TRANSPARENT", false);
+                material.SetKeyword("_DITHER_CLIP", false);
                 ditherClip.floatValue = 0;
                 break;
         }
@@ -164,27 +164,27 @@ public class CharacterHairGUI : ShaderGUI
 
         m_MaterialEditor.ShaderProperty(switchTangent, "高光方向切换", indent);
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.TexturePropertySingleLine(Styles.baseMapText, baseMap, baseColor);
         m_MaterialEditor.TexturePropertySingleLine(Styles.normalMapText, normalMap, normalScale);
         if (normalMap.textureValue != null)
             m_MaterialEditor.ShaderProperty(normalMapSwitch, "DX/OpenGL切换", indent);
-        material.SetMaterialKeyword("_NORMALMAP", normalMap.textureValue != null);
+        material.SetKeyword("_NORMALMAP", normalMap.textureValue != null);
 
         m_MaterialEditor.TexturePropertySingleLine(Styles.maskMapText, maskMap);
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
 
         m_MaterialEditor.ShaderProperty(metallic, "金属度");
         m_MaterialEditor.ShaderProperty(fresnelStrength, "菲涅尔强度");
         m_MaterialEditor.ShaderProperty(AOStrength, "AO强度");
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(smoothness, "光滑度");
         m_MaterialEditor.ShaderProperty(intensity, "高光强度");
         m_MaterialEditor.ShaderProperty(shift, "高光偏移");
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(doubleSpecular, "双层高光");
         if (doubleSpecular.floatValue != 0)
         {
@@ -195,20 +195,20 @@ public class CharacterHairGUI : ShaderGUI
             EditorGUI.indentLevel -= indent;
         }
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(sssToggle, "SSS");
         if (sssToggle.floatValue != 0)
         {
             m_MaterialEditor.ShaderProperty(sssColor, "SSS颜色", indent);
         }
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(this.rimColor, "边缘光颜色");
         m_MaterialEditor.ShaderProperty(rimPower, "边缘光范围");
         Color rimColor = this.rimColor.colorValue;
         rimColor.a = rimPower.floatValue;
         this.rimColor.colorValue = rimColor;
-        material.SetMaterialKeyword("_RIM", rimColor.maxColorComponent >= 0.04f);
+        material.SetKeyword("_RIM", rimColor.maxColorComponent >= 0.04f);
     }
 
     void BlendModePopup()

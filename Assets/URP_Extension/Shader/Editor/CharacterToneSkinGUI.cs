@@ -95,14 +95,14 @@ public class CharacterToneSkinGUI : ShaderGUI
     public void ShaderPropertiesGUI(Material material)
     {
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.TexturePropertySingleLine(Styles.baseMapText, baseMap, baseColor);
         m_MaterialEditor.TexturePropertySingleLine(Styles.normalMapText, normalMap, normalScale);
         // if (normalMap.textureValue != null)
         //     m_MaterialEditor.ShaderProperty(normalMapSwitch, "DX/OpenGL切换", indent);
         m_MaterialEditor.TexturePropertySingleLine(Styles.maesMapText, maesMap);
 
-        material.SetMaterialKeyword("_NORMALMAP", normalMap.textureValue != null);
+        material.SetKeyword("_NORMALMAP", normalMap.textureValue != null);
 
         EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(lightColorControl, "暗部颜色");
@@ -112,7 +112,7 @@ public class CharacterToneSkinGUI : ShaderGUI
         colorControl.a = lightIntensity.floatValue;
         lightColorControl.colorValue = colorControl;
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
          m_MaterialEditor.ShaderProperty(AOStrength, "AO强度");
         if (maesMap.textureValue != null)
         {
@@ -141,14 +141,14 @@ public class CharacterToneSkinGUI : ShaderGUI
             smoothAndCurve.vectorValue = new Vector4(smoothnessMin.floatValue, smoothnessMax.floatValue, curveMin.floatValue, curveMax.floatValue);
         }
        
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(sssToggle, "SSS");
         if (sssToggle.floatValue != 0)
         {
             m_MaterialEditor.ShaderProperty(sssColor, "SSS颜色", indent);
         }
 
-        EditorGUILayout.Space(10);
+        EditorGUILayout.Space();
         m_MaterialEditor.ShaderProperty(rimToggle, "边缘光开关");
         if (rimToggle.floatValue != 0)
         {

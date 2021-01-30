@@ -68,7 +68,7 @@ Varyings CommonLitVert(Attributes input)
     OUTPUT_GI_SH(output.normalWS.xyz, output.vertexSH);
     
 #ifdef _ADDITIONAL_LIGHTS_VERTEX
-    output.VertexLightAndFog.rgb = VertexLighting(light, output.normalWS, output.positionWS);
+    output.VertexLighting.rgb = VertexLighting(output.normalWS.xyz, output.positionWSAndFog.xyz);
 #endif
     output.positionWSAndFog.w = ComputeFogFactor(output.positionCS.z);
 

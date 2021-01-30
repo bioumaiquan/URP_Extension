@@ -32,6 +32,18 @@ half3 Lambert(half3 lightColor, half3 lightDir, half3 normal)
     return lightColor * NdotL;
 }
 
+half3 VertexLighting(real3 normalWS, float3 positionWS)
+{
+	real3 color = 0;
+	uint vertexLightCount = GetAdditionalLightsCount();
+    for (uint lightIndex = 0u; lightIndex < vertexLightCount; ++ lightIndex)
+    {
+        Light light = GetAdditionalLight(lightIndex, positionWS);
+        color += Lambert(light.color, light.direction, normalWS) * light.distanceAttenuation;
+    }
+	return color;
+}
+
 half3 IncomingLight(Surface surface, Light light, bool isMainLight = true)
 {
     half3 shadow = light.shadowAttenuation;

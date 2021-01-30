@@ -15,7 +15,7 @@ half3 Lambert(half3 lightColor, half3 lightDir, half3 normal)
     return lerp(backColor, lightColor, NdotL);
 }
 
-half3 VertexLighting(Light light, real3 normalWS, float3 positionWS)
+half3 VertexLighting(real3 normalWS, float3 positionWS)
 {
 	real3 color = 0;
 	uint vertexLightCount = GetAdditionalLightsCount();
@@ -24,7 +24,6 @@ half3 VertexLighting(Light light, real3 normalWS, float3 positionWS)
         Light light = GetAdditionalLight(lightIndex, positionWS);
         color += Lambert(light.color, light.direction, normalWS) * light.distanceAttenuation;
     }
-
 	return color;
 }
 

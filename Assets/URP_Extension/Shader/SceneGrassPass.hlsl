@@ -58,7 +58,7 @@ Varyings SimpleLitVert(Attributes input)
     OUTPUT_GI_SH(normalWS, output.vertexSH);
     
 #ifdef _ADDITIONAL_LIGHTS_VERTEX
-    output.VertexLightAndFog.rgb = VertexLighting(light, output.normalWS, output.positionWS);
+    output.VertexLightAndFog.rgb = VertexLighting(normalWS, output.positionWS);
 #endif
     output.VertexLightAndFog.w = ComputeFogFactor(output.positionCS.z);
 

@@ -13,7 +13,7 @@
       "dependencies": {}
     },
     "com.unity.ext.nunit": {
-      "version": "1.0.0",
+      "version": "1.0.5",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
@@ -29,7 +29,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.vscode": {
-      "version": "1.2.1",
+      "version": "1.2.3",
       "depth": 0,
       "source": "registry",
       "dependencies": {},
@@ -45,38 +45,39 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.render-pipelines.core": {
-      "version": "7.4.1",
+      "version": "7.5.3",
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.ugui": "1.0.0"
+        "com.unity.ugui": "1.0.0",
+        "com.unity.modules.physics": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
     "com.unity.render-pipelines.universal": {
-      "version": "file:com.unity.render-pipelines.universal@7.4.1",
+      "version": "file:com.unity.render-pipelines.universal@7.5.3",
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.unity.render-pipelines.core": "7.4.1",
-        "com.unity.shadergraph": "7.4.1"
+        "com.unity.render-pipelines.core": "7.5.3",
+        "com.unity.shadergraph": "7.5.3"
       }
     },
     "com.unity.shadergraph": {
-      "version": "7.4.1",
-      "depth": 1,
+      "version": "7.5.3",
+      "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.render-pipelines.core": "7.4.1"
+        "com.unity.render-pipelines.core": "7.5.3"
       },
       "url": "https://packages.unity.com"
     },
     "com.unity.test-framework": {
-      "version": "1.1.16",
+      "version": "1.1.19",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.ext.nunit": "1.0.0",
+        "com.unity.ext.nunit": "1.0.5",
         "com.unity.modules.imgui": "1.0.0",
         "com.unity.modules.jsonserialize": "1.0.0"
       },
@@ -103,7 +104,8 @@
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.modules.ui": "1.0.0"
+        "com.unity.modules.ui": "1.0.0",
+        "com.unity.modules.imgui": "1.0.0"
       }
     },
     "com.unity.visualeffectgraph": {
@@ -116,7 +118,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.legacyinputhelpers": {
-      "version": "2.1.4",
+      "version": "2.1.6",
       "depth": 0,
       "source": "registry",
       "dependencies": {},

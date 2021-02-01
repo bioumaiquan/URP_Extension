@@ -1,7 +1,7 @@
 #ifndef BIOUM_LIGHT_INCLUDED
 #define BIOUM_LIGHT_INCLUDED
 
-#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+#include "Shadows_Extension.hlsl"
 
 
 // Matches Unity Vanila attenuation

@@ -1,4 +1,4 @@
-﻿Shader "Unlit/SobelFilter"
+﻿Shader "Bioum/RenderFeature/SobelFilter"
 {
 	Properties 
 	{

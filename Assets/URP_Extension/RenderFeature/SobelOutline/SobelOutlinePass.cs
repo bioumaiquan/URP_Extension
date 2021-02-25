@@ -10,7 +10,7 @@ namespace UnityEngine.Experiemntal.Rendering.Universal
     /// so you can use it later in rendering. For example, you can copy
     /// the opaque texture to use it for distortion effects.
     /// </summary>
-    internal class BlitPass : ScriptableRenderPass
+    internal class SobelOutlinePass : ScriptableRenderPass
     {
         public enum RenderTarget
         {
@@ -31,7 +31,7 @@ namespace UnityEngine.Experiemntal.Rendering.Universal
         /// <summary>
         /// Create the CopyColorPass
         /// </summary>
-        public BlitPass(RenderPassEvent renderPassEvent, Material blitMaterial, int blitShaderPassIndex, string tag)
+        public SobelOutlinePass(RenderPassEvent renderPassEvent, Material blitMaterial, int blitShaderPassIndex, string tag)
         {
             this.renderPassEvent = renderPassEvent;
             this.blitMaterial = blitMaterial;

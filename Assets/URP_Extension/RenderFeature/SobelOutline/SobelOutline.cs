@@ -2,7 +2,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace UnityEngine.Experiemntal.Rendering.Universal
 {
-    public class Blit : ScriptableRendererFeature
+    public class SobelOutline : ScriptableRendererFeature
     {
         [System.Serializable]
         public class BlitSettings
@@ -24,13 +24,13 @@ namespace UnityEngine.Experiemntal.Rendering.Universal
         public BlitSettings settings = new BlitSettings();
         RenderTargetHandle m_RenderTextureHandle;
 
-        BlitPass blitPass;
+        SobelOutlinePass sobelOutlinePass;
 
         public override void Create()
         {
             var passIndex = settings.blitMaterial != null ? settings.blitMaterial.passCount - 1 : 1;
             settings.blitMaterialPassIndex = Mathf.Clamp(settings.blitMaterialPassIndex, -1, passIndex);
-            blitPass = new BlitPass(settings.Event, settings.blitMaterial, settings.blitMaterialPassIndex, name);
+            sobelOutlinePass = new SobelOutlinePass(settings.Event, settings.blitMaterial, settings.blitMaterialPassIndex, name);
             m_RenderTextureHandle.Init(settings.textureId);
         }
 
@@ -45,8 +45,8 @@ namespace UnityEngine.Experiemntal.Rendering.Universal
                 return;
             }
 
-            blitPass.Setup(src, dest);
-            renderer.EnqueuePass(blitPass);
+            sobelOutlinePass.Setup(src, dest);
+            renderer.EnqueuePass(sobelOutlinePass);
         }
     }
 }

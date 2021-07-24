@@ -59,8 +59,11 @@ public class GPUInstanceRenderFeature : ScriptableRendererFeature
             for (int i = 0; i < tiles.Length; i++)
             {
                 int totalCount = tiles[i].localToWorld.Length;
+                
+                //TODO : 剔除
+                
 
-                if (tiles[i].BatchCount == 1)
+                if (tiles[i].batchCount == 1)
                 {
                     cmd.DrawMeshInstanced(instanceMesh, 0, instanceMaterial, 0, tiles[i].localToWorld);
                 }
@@ -72,7 +75,7 @@ public class GPUInstanceRenderFeature : ScriptableRendererFeature
                     
                     //前几批的数组
                     int j;
-                    for (j = 0; j < tiles[i].BatchCount - 1; j++)
+                    for (j = 0; j < tiles[i].batchCount - 1; j++)
                     {
                         Matrix4x4[] matrix4x4s = new Matrix4x4[countPerInstance];
                         Array.Copy(tiles[i].localToWorld, j * countPerInstance, matrix4x4s, 0, countPerInstance);
@@ -80,7 +83,7 @@ public class GPUInstanceRenderFeature : ScriptableRendererFeature
                     }
                     
                     //最后一个批次的矩阵数组
-                    int lastCount = totalCount - (tiles[i].BatchCount - 1) * countPerInstance;
+                    int lastCount = totalCount - (tiles[i].batchCount - 1) * countPerInstance;
                     if (lastCount > 0)
                     {
                         Matrix4x4[] lastMatrix4x4s = new Matrix4x4[lastCount];

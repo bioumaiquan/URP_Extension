@@ -9,12 +9,13 @@ using Random = UnityEngine.Random;
 public class GPUInstanceData : MonoBehaviour
 {
     [Serializable]
-    public class InstanceTile
+    public struct InstanceTile
     {
         public Matrix4x4[] localToWorld;
         public int batchCount;
         public Bounds bounds;
     }
+
 
     [SerializeField] private InstanceTile[] m_InstanceTiles;
     public InstanceTile[] InstanceTiles => m_InstanceTiles;
@@ -74,7 +75,7 @@ public class GPUInstanceData : MonoBehaviour
         Vector3 boundSize = Vector3.one * TileSize;
         List<Matrix4x4> matrix4X4s = new List<Matrix4x4>();
         
-        for (int i = 0; i < BoxCountX; i++)
+        for (int i = 0; i < BoxCountX; i++) // 生成tile
         {
             tilePosition.x = minMaxPos.x + halfSize + i * TileSize;
             for (int j = 0; j < BoxCountZ; j++)

@@ -27,6 +27,7 @@ public class GPUInstanceRenderFeature : ScriptableRendererFeature
     {
         string profilerTag;
         public List<Matrix4x4[]> localToWorldList;
+        private Plane[] frustumPlanes = new Plane[6];
         
         public GPUInstanceRenderPass(string profilerTag)
         {
@@ -55,14 +56,16 @@ public class GPUInstanceRenderFeature : ScriptableRendererFeature
 
             CommandBuffer cmd = CommandBufferPool.Get(profilerTag);
 
-            
+            GeometryUtility.CalculateFrustumPlanes(camera, frustumPlanes);
+
             for (int i = 0; i < tiles.Length; i++)
             {
-                int totalCount = tiles[i].localToWorld.Length;
+                //视锥体剔除
+                //TODO : 四叉树剔除
+                bool inView = GeometryUtility.TestPlanesAABB(frustumPlanes, tiles[i].bounds);
+                if(!inView)
+                    continue;;
                 
-                //TODO : 剔除
-                
-
                 if (tiles[i].batchCount == 1)
                 {
                     cmd.DrawMeshInstanced(instanceMesh, 0, instanceMaterial, 0, tiles[i].localToWorld);
@@ -70,6 +73,8 @@ public class GPUInstanceRenderFeature : ScriptableRendererFeature
                 else
                 {
                     localToWorldList.Clear();
+                    
+                    int totalCount = tiles[i].localToWorld.Length;
                     
                     //tile内的总mesh数量可能大于合批数量  所以先拆分数组
                     
